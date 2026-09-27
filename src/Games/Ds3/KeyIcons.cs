@@ -18,6 +18,9 @@ static unsafe class KeyIcons
     const int Scale = 2;          // textures are drawn at twice the size they are shown at
     const int ShownHeight = 32;   // like the game's KG_* button icons
     const int TopPadding = 4;
+    // Height the images are shown at: with 29 px or more the text line grows and the prompt text (and
+    // pop-up menus built from it) moves down, unlike with the game's own 32 px icons.
+    const int LineHeight = 28;
     const string Carrier = "menu/05_dummy.tpf.dcx";
     const int StampVersion = 2;
 
@@ -75,7 +78,7 @@ static unsafe class KeyIcons
                 // button icons inside their 32x32 textures: transparent rows above it.
                 var img = KeycapRenderer.Render(spec, (ShownHeight - TopPadding) * Scale);
                 int w = (img.Width + 3) & ~3, h = (img.Height + TopPadding * Scale + 3) & ~3;
-                icons.Add((id, "DKP_" + id, Pad(img, w, h, TopPadding * Scale), w / Scale, h / Scale));
+                icons.Add((id, "DKP_" + id, Pad(img, w, h, TopPadding * Scale), w * LineHeight / h, LineHeight));
             }
             lock (s_icons) foreach (var i in icons) s_icons[i.Id] = (i.Name, i.W, i.H);
 

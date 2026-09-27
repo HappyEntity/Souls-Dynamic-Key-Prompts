@@ -7,14 +7,23 @@ This mod shows the keys and mouse buttons **you bound** instead — in menus, th
 prompts ("Rest at bonfire"), messages and tutorial texts — and follows your changes in the game's Key
 Bindings screen.
 
-**Download:** [GitHub Releases](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/releases) ·
+**Download:** [Nexus Mods](https://www.nexusmods.com/darksouls3/mods/2379) ·
+[GitHub Releases](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/releases) ·
 [Changelog](../../CHANGELOG.md)
+
+Also available for [Dark Souls II: Scholar of the First Sin](../ds2/README.md).
+
+![Equipment menu: before and after](media/before-after-menu.jpg)
 
 - Key and mouse icons in the style of the game's button icons (themes `dark`, `minimal`, `silver`), or plain text labels
 - Context aware: menu buttons resolve to menu actions (Confirm, Cancel, tabs), world prompts to game actions (Interact, Roll, …)
 - Mouse movement shown for the camera, Shift combinations shown as Shift + key
 - The game's files are not modified; delete one DLL to uninstall
 - Works together with **Seamless Co-op** and **ModEngine2**
+
+![Tutorial message: before and after](media/before-after-tutorial.jpg)
+
+![Bonfire prompt: before and after](media/before-after-bonfire.jpg)
 
 ## Requirements
 

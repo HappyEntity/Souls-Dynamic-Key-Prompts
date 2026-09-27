@@ -31,7 +31,14 @@
   </Folder>
   <Folder Name="/games/ds3/">
     <File Path="games/ds3/DynamicKeyPrompts-README.txt" />
+    <File Path="games/ds3/nexus-description.bbcode" />
     <File Path="games/ds3/README.md" />
+  </Folder>
+  <Folder Name="/games/ds3/media/">
+    <File Path="games/ds3/media/before-after-bonfire-menu.jpg" />
+    <File Path="games/ds3/media/before-after-bonfire.jpg" />
+    <File Path="games/ds3/media/before-after-menu.jpg" />
+    <File Path="games/ds3/media/before-after-tutorial.jpg" />
   </Folder>
   <Folder Name="/build/">
     <File Path=".editorconfig" />

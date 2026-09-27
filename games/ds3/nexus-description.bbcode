@@ -1,0 +1,72 @@
+[center][size=6][b]Dynamic Key Prompts[/b][/size]
+[size=3]Your actual key bindings in every button prompt[/size][/center]
+
+Dark Souls III shows Xbox buttons in its prompts even when you play with keyboard and mouse. Other mods replace the button textures with fixed keys - which is wrong as soon as you rebind anything.
+
+[b]Dynamic Key Prompts reads the bindings from the game itself[/b] and shows the key or mouse button you actually use - and follows your changes in the Key Bindings screen.
+
+[b]Also available for [url=https://www.nexusmods.com/darksouls2/mods/1738]Dark Souls II: Scholar of the First Sin[/url].[/b]
+
+[center][img]https://staticdelivery.nexusmods.com/mods/1392/images/2379/2379-1790508945-703919774.jpg[/img][/center]
+
+[size=4][b]Features[/b][/size]
+[list]
+[*]Every prompt: menus, the help bar, interaction prompts ("Light bonfire", "Examine"), messages, tutorial texts, menu tabs[/*]
+[*]Key and mouse icons in the style of the game, or plain text labels like [E][/*]
+[*]Context aware: in menus A means [i]OK[/i], in the world it means [i]Interact[/i] - each shows its own key[/*]
+[*]Mouse buttons where you bound them, Shift combinations shown as Shift + key, the camera as mouse movement[/*]
+[*]Three icon themes: dark, minimal, silver[/*]
+[*]Does not modify any game file - delete one DLL to uninstall[/*]
+[*]Compatible with [b]Seamless Co-op[/b] and [b]ModEngine2[/b][/*]
+[/list]
+[center][img]https://staticdelivery.nexusmods.com/mods/1392/images/2379/2379-1790508945-308071769.jpg[/img][/center]
+
+[center][img]https://staticdelivery.nexusmods.com/mods/1392/images/2379/2379-1790508941-1318930075.jpg[/img][/center]
+
+[size=4][b]Requirements[/b][/size]
+[list]
+[*]Dark Souls III, Steam, latest update (1.15.2)[/*]
+[*]Windows 10/11 64-bit[/*]
+[/list]
+[size=4][b]Installation[/b][/size]
+[b]Vortex:[/b] click [i]Mod Manager Download[/i] and deploy - the files go to the Game folder.
+
+[b]Manual:[/b]
+[list=1]
+[*]Steam > Dark Souls III > Manage > Browse local files > open the [b]Game[/b] folder (the one with DarkSoulsIII.exe)[/*]
+[*]Copy [b]dinput8.dll[/b] and the [b]DynamicKeyPrompts[/b] folder into it[/*]
+[*]Start the game as usual (with Seamless Co-op: through ds3sc_launcher.exe; with ModEngine2: through launchmod_darksouls3.bat)[/*]
+[/list]
+[b]Uninstall:[/b] remove the mod in Vortex, or delete dinput8.dll and the DynamicKeyPrompts folder.
+
+[size=4][b]Settings[/b][/size]
+Edit [b]DynamicKeyPrompts\DynamicKeyPrompts.ini[/b]:
+[list]
+[*][b]Style[/b] = icons / text[/*]
+[*][b]IconTheme[/b] = dark / minimal / silver[/*]
+[*][b]Labels[/b] = auto / mouse / both[/*]
+[/list]
+[size=4][b]Compatibility[/b][/size]
+The mod loads through [b]dinput8.dll[/b]. If another mod already uses dinput8.dll, download the optional [b]xinput1_3 loader[/b] file and use its [b]xinput1_3.dll[/b] instead.
+
+[b]ModEngine2:[/b] the mod can also stay outside the Game folder - put dinput8.dll and the DynamicKeyPrompts folder into any folder and list that dinput8.dll in [i]external_dlls[/i] of config_darksouls3.toml. If another ModEngine2 mod replaces menu\05_Dummy.tpf.dcx, the key icons are added to that mod's version of the file. Made to work with every game language (tested with English and Russian).
+
+[size=4][b]Playing online[/b][/size]
+The mod only changes what you see: the prompt text and a copy of one menu texture file. It doesn't touch saves, params, items or stats and sends nothing over the network.
+[list]
+[*][b]Seamless Co-op:[/b] safe - Seamless uses its own network and doesn't connect to FromSoftware's servers.[/*]
+[*][b]Official online:[/b] very likely fine for the same reasons, but like most DLL mods it hooks game code and disables the game's Arxan anti-tamper, so there is no 100% guarantee. Use at your own risk.[/*]
+[/list]
+[size=4][b]Troubleshooting[/b][/size]
+The mod writes [b]DynamicKeyPrompts\DynamicKeyPrompts.log[/b]. For a bug report set [b]Diagnostics=1[/b] in the ini, reproduce the problem and attach the log - in the Bugs tab here or on [url=https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/issues]GitHub Issues[/url].
+
+[size=4][b]Source code[/b][/size]
+Open source under the MIT license: [url=https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts]GitHub[/url]
+
+[size=4][b]Credits[/b][/size]
+[list]
+[*][url=https://github.com/tremwil/dearxan]dearxan[/url] by tremwil[/*]
+[*][url=https://github.com/TsudaKageyu/minhook]MinHook[/url] by Tsuda Kageyu[/*]
+[*][url=https://github.com/soulsmods/ModEngine2]ModEngine2[/url] - reference for how the game loads files[/*]
+[*]The Souls modding community for documenting the game's file formats[/*]
+[/list]

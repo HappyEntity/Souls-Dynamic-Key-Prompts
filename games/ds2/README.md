@@ -10,6 +10,8 @@ when you rebind a key.
 [GitHub Releases](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/releases) ·
 [Changelog](../../CHANGELOG.md)
 
+Also available for [Dark Souls III](../ds3/README.md).
+
 ![Equipment menu: before and after](media/before-after-menu.jpg)
 
 - Key and mouse icons drawn in the game's style (three built-in themes, fully editable), or plain text labels

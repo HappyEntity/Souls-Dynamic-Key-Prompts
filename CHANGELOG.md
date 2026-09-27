@@ -2,6 +2,11 @@
 
 ## Dark Souls III
 
+### 0.1.2
+
+- Key icons no longer push the prompt text down: help bar lines and pop-up menus with key icons now
+  sit where they are with gamepad buttons.
+
 ### 0.1.1
 
 - When another ModEngine2 mod replaces `menu\05_Dummy.tpf.dcx`, the key icons are added to that
