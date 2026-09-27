@@ -3,15 +3,16 @@
 # the game folder.
 #
 #   pwsh .\build.ps1                               build
-#   pwsh .\build.ps1 -Install                      build and copy into the game folder
-#   pwsh .\build.ps1 -Install -Loader xinput1_3    same, with the alternative loader
+#   pwsh .\build.ps1 -Install                      build and copy into the Dark Souls II folder
+#   pwsh .\build.ps1 -Install -Game ds3            same for Dark Souls III
+#   pwsh .\build.ps1 -Install -Loader xinput1_3    with the alternative loader
 #   pwsh .\build.ps1 -Package                      build and create the release zips in .\out
 #
-# The game folder is found through Steam; override with -GameDir or the game's variable (DS2_GAME_DIR).
+# The game folder is found through Steam; override with -GameDir or the game's variable (DS2_GAME_DIR, DS3_GAME_DIR).
 param(
     [switch]$Install,
     [switch]$Package,
-    [ValidateSet("ds2")]
+    [ValidateSet("ds2", "ds3")]
     [string]$Game = "ds2",
     [ValidateSet("dinput8", "xinput1_3")]
     [string]$Loader = "dinput8",
@@ -26,6 +27,7 @@ $modName = "DynamicKeyPrompts"
 # Per game: core project (src\Games\<Dir>), release zip name, Steam folder, executable, game folder variable
 $games = [ordered]@{
     ds2 = @{ Dir = "Ds2"; Zip = $modName; Steam = "Dark Souls II Scholar of the First Sin\Game"; Exe = "DarkSoulsII.exe"; Env = "DS2_GAME_DIR" }
+    ds3 = @{ Dir = "Ds3"; Zip = "$modName-DS3"; Steam = "DARK SOULS III\Game"; Exe = "DarkSoulsIII.exe"; Env = "DS3_GAME_DIR" }
 }
 
 # ---------------------------------------------------------------- dependencies

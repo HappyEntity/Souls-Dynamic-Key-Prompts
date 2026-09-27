@@ -126,14 +126,18 @@ static void set_core_range(HMODULE m)
 
 // ---------------------------------------------------------------- Seamless Co-op
 //
-// Seamless Co-op's launcher starts the game suspended and loads ds2sc.dll from a remote thread;
-// that same thread loads us first while it initialises the process. With dearxan Seamless
-// crashes on some systems, so under Seamless we wait until that thread exits (ds2sc.dll is
-// loaded by then and the game's main thread is still suspended) and start without dearxan.
+// Seamless Co-op's launcher starts the game suspended and loads its DLL (ds2sc.dll / ds3sc.dll)
+// from a remote thread; that same thread loads us first while it initialises the process. With
+// dearxan Seamless crashes on some systems, so under Seamless we wait until that thread exits (its
+// DLL is loaded by then and the game's main thread is still suspended) and start without dearxan.
+//
+// ModEngine2 (Dark Souls III) starts the game itself and prepares it on the main thread right after
+// our DllMain; dearxan patching the entry point as well makes the Steam DRM stub refuse to start
+// the game, so under ModEngine2 we start without dearxan too.
 //
 // [Loader] section of DynamicKeyPrompts.ini, for diagnosing conflicts:
 //   Defer=0     under Seamless, start the usual way (dearxan, right away)
-//   Dearxan=1   under Seamless, still use dearxan (after ds2sc.dll has loaded)
+//   Dearxan=1   under Seamless or ModEngine2, still use dearxan
 
 static int ini_int(const wchar_t* key, int def)
 {
@@ -141,30 +145,58 @@ static int ini_int(const wchar_t* key, int def)
     return static_cast<int>(GetPrivateProfileIntW(L"Loader", key, def, ini.c_str()));
 }
 
-// Detected by the parent process: ds2sc.dll itself is loaded only after our DllMain has run.
-static bool started_by_seamless()
-{
-    if (GetModuleHandleW(L"ds2sc.dll"))
-        return true;
+// Seamless Co-op for Dark Souls II and III (same author, same launcher design).
+static const wchar_t* const kSeamless[][2] = {
+    { L"ds2sc_launcher.exe", L"ds2sc.dll" },
+    { L"ds3sc_launcher.exe", L"ds3sc.dll" },
+};
 
+static bool seamless_loaded()
+{
+    for (auto& s : kSeamless)
+        if (GetModuleHandleW(s[1])) return true;
+    return false;
+}
+
+// File name of the process that started the game ("steam.exe", "ds3sc_launcher.exe", ...).
+static std::wstring parent_name()
+{
     struct BasicInfo { LONG exit; PVOID peb; ULONG_PTR affinity; LONG prio; ULONG_PTR pid, parent; } info{};
     using QueryFn = LONG(NTAPI*)(HANDLE, int, PVOID, ULONG, PULONG);
     auto query = reinterpret_cast<QueryFn>(GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtQueryInformationProcess"));
     if (!query || query(GetCurrentProcess(), 0, &info, sizeof info, nullptr) < 0)
-        return false;
-
+        return L"";
     HANDLE parent = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, static_cast<DWORD>(info.parent));
     if (!parent)
-        return false;
+        return L"";
     wchar_t path[MAX_PATH];
     DWORD n = MAX_PATH;
-    bool seamless = false;
+    std::wstring name;
     if (QueryFullProcessImageNameW(parent, 0, path, &n)) {
-        const wchar_t* name = wcsrchr(path, L'\\');
-        seamless = _wcsicmp(name ? name + 1 : path, L"ds2sc_launcher.exe") == 0;
+        const wchar_t* slash = wcsrchr(path, L'\\');
+        name = slash ? slash + 1 : path;
     }
     CloseHandle(parent);
-    return seamless;
+    return name;
+}
+
+enum class Launch { Normal, Seamless, ModEngine };
+
+// Detected by the parent process: the Seamless DLL itself is loaded only after our DllMain has run.
+static Launch detect_launch()
+{
+    std::wstring parent = parent_name();
+    logf("loader: started by %ls", parent.empty() ? L"(unknown)" : parent.c_str());
+    // ModEngine2's launcher starts the game through Detours and exits; it leaves MODENGINE_CONFIG in
+    // the game's environment. Checked first: ModEngine2 may also have loaded Seamless already.
+    if (GetEnvironmentVariableW(L"MODENGINE_CONFIG", nullptr, 0) > 0
+        || _wcsicmp(parent.c_str(), L"modengine2_launcher.exe") == 0)
+        return Launch::ModEngine;
+    if (seamless_loaded())
+        return Launch::Seamless;
+    for (auto& s : kSeamless)
+        if (_wcsicmp(parent.c_str(), s[0]) == 0) return Launch::Seamless;
+    return Launch::Normal;
 }
 
 // ---------------------------------------------------------------- startup
@@ -279,6 +311,20 @@ static void start_at_game_code()
         log_line("loader: cannot catch the game start - running vanilla");
 }
 
+// Start without dearxan and without touching the game's code: map the core now, run it when the
+// game's own code starts (see start_at_game_code).
+static void start_without_dearxan()
+{
+    // Loading the core at the game's start fails in some setups (error 18), so it is mapped now;
+    // the .NET runtime only starts when DKP_Init is called.
+    std::wstring core = g_mod_dir + L"\\DynamicKeyPrompts.dll";
+    g_core_preloaded = LoadLibraryW(core.c_str());
+    if (!g_core_preloaded)
+        logf("loader: cannot load core DLL (error %lu) - running vanilla", GetLastError());
+    else
+        start_at_game_code();
+}
+
 static DWORD g_deferred_thread;
 
 static void attach()
@@ -302,10 +348,21 @@ static void attach()
     g_log = _wfsopen(log_path.c_str(), L"w", _SH_DENYWR);
     logf("loader: DynamicKeyPrompts loader attached as %s", g_proxy_name);
 
-    if (started_by_seamless() && ini_int(L"Defer", 1)) {
+    switch (detect_launch()) {
+    case Launch::Seamless:
+        if (!ini_int(L"Defer", 1)) break;
         g_deferred_thread = GetCurrentThreadId();
         log_line("loader: started by Seamless Co-op - waiting for it to finish loading");
         return;
+    case Launch::ModEngine:
+        // ModEngine2 prepares the game on its main thread right after us; with dearxan patching
+        // the entry point as well, the game's Steam DRM stub refuses to start.
+        if (ini_int(L"Dearxan", 0)) break;
+        log_line("loader: started by ModEngine2 - starting without dearxan");
+        start_without_dearxan();
+        return;
+    case Launch::Normal:
+        break;
     }
     start_mod();
 }
@@ -319,19 +376,11 @@ BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID)
             DisableThreadLibraryCalls(inst);
     } else if (reason == DLL_THREAD_DETACH && g_deferred_thread == GetCurrentThreadId()) {
         g_deferred_thread = 0;
-        logf("loader: Seamless Co-op loaded (ds2sc.dll %s)", GetModuleHandleW(L"ds2sc.dll") ? "present" : "not found");
-        if (ini_int(L"Dearxan", 0)) {
+        logf("loader: Seamless Co-op loaded (%s)", seamless_loaded() ? "its DLL is present" : "its DLL not found");
+        if (ini_int(L"Dearxan", 0))
             start_mod();
-        } else {
-            // Loading the core at the game's start fails without dearxan (error 18), so it is
-            // mapped now; the .NET runtime only starts when DKP_Init is called.
-            std::wstring core = g_mod_dir + L"\\DynamicKeyPrompts.dll";
-            g_core_preloaded = LoadLibraryW(core.c_str());
-            if (!g_core_preloaded)
-                logf("loader: cannot load core DLL (error %lu) - running vanilla", GetLastError());
-            else
-                start_at_game_code();
-        }
+        else
+            start_without_dearxan();
         DisableThreadLibraryCalls(inst);
     }
     return TRUE;

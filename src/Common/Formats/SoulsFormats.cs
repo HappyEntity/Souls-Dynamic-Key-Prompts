@@ -159,15 +159,72 @@ public static class Tpf
     }
 
     /// Same layout as the game's FeFont_*_000N.tpf: one texture, format 5 (DXT5), 1 mip.
-    public static byte[] WriteSingle(string name, byte[] dds)
+    /// A copy of a TPF with textures added (DDS files, DXT5). Existing entries are kept byte for byte.
+    public static byte[] AddTextures(byte[] tpf, IReadOnlyList<(string Name, byte[] Dds)> added)
     {
-        byte[] nameBytes = Encoding.ASCII.GetBytes(name + "\0");
+        int count = BitConverter.ToInt32(tpf, 8);
+        bool unicode = tpf[0x0E] == 1;
+        const int entrySize = 0x14;
+        int total = count + added.Count;
+
+        // names first, then data
+        var names = new MemoryStream();
+        var nameOffsets = new int[total];
+        int namesStart = 0x10 + total * entrySize;
+        var all = new List<(byte[] Entry, byte[] Data)>();
+        for (int i = 0; i < count; i++)
+        {
+            int p = 0x10 + i * entrySize;
+            int off = BitConverter.ToInt32(tpf, p), size = BitConverter.ToInt32(tpf, p + 4), no = BitConverter.ToInt32(tpf, p + 0xC);
+            int e = no;
+            if (unicode) { while (tpf[e] != 0 || tpf[e + 1] != 0) e += 2; e += 2; }
+            else { while (tpf[e] != 0) e++; e++; }
+            nameOffsets[i] = namesStart + (int)names.Length;
+            names.Write(tpf, no, e - no);
+            all.Add((tpf[p..(p + entrySize)], tpf[off..(off + size)]));
+        }
+        for (int i = 0; i < added.Count; i++)
+        {
+            var entry = new byte[entrySize];
+            entry[8] = 5; entry[10] = 1; // DXT5, no cubemap, 1 mip level
+            nameOffsets[count + i] = namesStart + (int)names.Length;
+            names.Write(unicode ? Encoding.Unicode.GetBytes(added[i].Name + "\0") : Encoding.ASCII.GetBytes(added[i].Name + "\0"));
+            all.Add((entry, added[i].Dds));
+        }
+
+        int dataStart = (namesStart + (int)names.Length + 15) & ~15;
+        var o = new MemoryStream();
+        o.Write(tpf, 0, 0x10);
+        int pos = dataStart;
+        for (int i = 0; i < total; i++)
+        {
+            var entry = all[i].Entry.ToArray();
+            BitConverter.TryWriteBytes(entry.AsSpan(0), pos);
+            BitConverter.TryWriteBytes(entry.AsSpan(4), all[i].Data.Length);
+            BitConverter.TryWriteBytes(entry.AsSpan(0xC), nameOffsets[i]);
+            o.Write(entry);
+            pos = (pos + all[i].Data.Length + 15) & ~15;
+        }
+        o.Write(names.ToArray());
+        var result = new byte[pos];
+        o.ToArray().CopyTo(result, 0);
+        pos = dataStart;
+        foreach (var (_, data) in all) { data.CopyTo(result, pos); pos = (pos + data.Length + 15) & ~15; }
+        BitConverter.TryWriteBytes(result.AsSpan(4), result.Length - dataStart);
+        BitConverter.TryWriteBytes(result.AsSpan(8), total);
+        return result;
+    }
+
+    /// <param name="unicodeNames">UTF-16 texture names, as in Dark Souls III (DS2 uses Shift-JIS/ASCII).</param>
+    public static byte[] WriteSingle(string name, byte[] dds, bool unicodeNames = false)
+    {
+        byte[] nameBytes = unicodeNames ? Encoding.Unicode.GetBytes(name + "\0") : Encoding.ASCII.GetBytes(name + "\0");
         int nameOff = 0x24, dataOff = nameOff + nameBytes.Length;
         var o = new byte[dataOff + dds.Length];
         "TPF\0"u8.CopyTo(o);
         BitConverter.TryWriteBytes(o.AsSpan(4), dds.Length);
         BitConverter.TryWriteBytes(o.AsSpan(8), 1);
-        o[0x0C] = 0; o[0x0D] = 3; o[0x0E] = 2; o[0x0F] = 0;
+        o[0x0C] = 0; o[0x0D] = 3; o[0x0E] = (byte)(unicodeNames ? 1 : 2); o[0x0F] = 0;
         BitConverter.TryWriteBytes(o.AsSpan(0x10), dataOff);
         BitConverter.TryWriteBytes(o.AsSpan(0x14), dds.Length);
         o[0x18] = 5; o[0x19] = 0; o[0x1A] = 1; o[0x1B] = 0;

@@ -23,7 +23,52 @@ static unsafe class Native
         return p[0] == 0xE9 || p[0] == 0xFF && p[1] == 0x25;
     }
 
+    /// Overwrites code or read-only data.
+    public static bool Patch(nint address, ReadOnlySpan<byte> bytes)
+    {
+        if (VirtualProtect(address, bytes.Length, 0x40 /*PAGE_EXECUTE_READWRITE*/, out uint old) == 0) return false;
+        bytes.CopyTo(new Span<byte>((void*)address, bytes.Length));
+        VirtualProtect(address, bytes.Length, old, out _);
+        return true;
+    }
+
+    /// Address of an exported function of a loaded DLL, or 0.
+    public static nint Export(string dll, string function)
+    {
+        nint module = GetModuleHandleW(dll);
+        return module == 0 ? 0 : GetProcAddress(module, function);
+    }
+
+    /// Return addresses of the current call stack, innermost first (this function excluded).
+    public static int CallStack(Span<nint> frames)
+    {
+        fixed (nint* p = frames) return RtlCaptureStackBackTrace(1, (uint)frames.Length, p, null);
+    }
+
+    public static int WcsLen(char* s)
+    {
+        int n = 0;
+        while (s[n] != 0) n++;
+        return n;
+    }
+
+    // Strings handed to the game stay valid for the whole session.
+    static readonly Dictionary<string, nint> s_strings = new();
+
+    /// A null-terminated UTF-16 copy of s that is never freed (one per distinct string).
+    public static nint PermanentString(string s)
+    {
+        lock (s_strings)
+        {
+            if (!s_strings.TryGetValue(s, out nint p)) s_strings[s] = p = Marshal.StringToHGlobalUni(s);
+            return p;
+        }
+    }
+
     [DllImport("kernel32.dll")] internal static extern int VirtualProtect(nint address, nint size, uint protect, out uint old);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)] static extern nint GetModuleHandleW(string name);
+    [DllImport("kernel32.dll", CharSet = CharSet.Ansi)] static extern nint GetProcAddress(nint module, string name);
+    [DllImport("kernel32.dll")] static extern ushort RtlCaptureStackBackTrace(uint skip, uint count, nint* frames, uint* hash);
 }
 
 /// Safe reads of our own process memory (never faults on bad pointers).

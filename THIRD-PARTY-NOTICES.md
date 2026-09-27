@@ -97,3 +97,11 @@ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ```
+
+## References (no code included)
+
+- [ModEngine2](https://github.com/soulsmods/ModEngine2) (MIT, soulsmods): the Dark Souls III core loads its
+  icon texture file the way ModEngine2 loads mod files (the address of the virtual file system's path
+  function and a patch site come from it).
+- [UXM](https://github.com/JKAnderson/UXM): the public key of the Dark Souls III archive `Data1.bhd`
+  (it belongs to the game) as published there.

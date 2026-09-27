@@ -9,10 +9,10 @@
   </Folder>
   <Folder Name="/src/Games/">
     <Project Path="src/Games/Ds2/Ds2.csproj" />
+    <Project Path="src/Games/Ds3/Ds3.csproj" />
   </Folder>
   <Folder Name="/tools/">
-    <Project Path="tools/Ds2Tool/Ds2Tool.csproj" />
-  </Folder>
+    <Project Path="tools/Ds2Tool/Ds2Tool.csproj" />  </Folder>
   <Folder Name="/games/">
     <File Path="games/DynamicKeyPrompts-xinput1_3-loader-README.txt" />
   </Folder>
@@ -27,6 +27,10 @@
     <File Path="games/ds2/media/before-after-lockon.jpg" />
     <File Path="games/ds2/media/before-after-menu.jpg" />
     <File Path="games/ds2/media/themes.png" />
+  </Folder>
+  <Folder Name="/games/ds3/">
+    <File Path="games/ds3/DynamicKeyPrompts-README.txt" />
+    <File Path="games/ds3/README.md" />
   </Folder>
   <Folder Name="/build/">
     <File Path=".editorconfig" />

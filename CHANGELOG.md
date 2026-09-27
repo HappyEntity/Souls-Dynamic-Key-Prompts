@@ -1,5 +1,17 @@
 # Changelog
 
+## Dark Souls III
+
+### 0.1.0
+
+First test version.
+
+- Gamepad button prompts replaced with the keys and mouse buttons bound in the game, read live from its
+  key config: menus, help bar, world prompts and tutorial texts
+- Key and mouse icons (themes `dark`, `minimal`, `silver`) added to a copy of a menu texture file, or
+  text labels (`Style=text`)
+- Compatible with Seamless Co-op and ModEngine2 (also as an `external_dlls` entry)
+
 ## Dark Souls II: Scholar of the First Sin
 
 ### 1.0.1

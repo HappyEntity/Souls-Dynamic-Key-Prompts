@@ -17,7 +17,7 @@ tutorial messages — and updates immediately when you rebind a key.
 | Game | Status | |
 |---|---|---|
 | Dark Souls II: Scholar of the First Sin | ✅ 1.0.1 | [Readme](games/ds2/README.md) · [Nexus Mods](https://www.nexusmods.com/darksouls2/mods/1738) |
-| Dark Souls III | Planned | |
+| Dark Souls III | 🧪 0.1.0, in testing | [Readme](games/ds3/README.md) |
 
 All releases: [GitHub Releases](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/releases) ·
 [Changelog](CHANGELOG.md) · [Report a problem](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/issues)
@@ -34,7 +34,7 @@ pwsh .\build.ps1 -Install -Loader xinput1_3   # same, with the alternative loade
 pwsh .\build.ps1 -Package   # build and create the release zips in .\out
 ```
 
-`-Game ds2` selects the game for `-Install` (the default). `build.ps1` downloads dearxan on first run.
+`-Game ds2` / `-Game ds3` selects the game for `-Install` (default `ds2`). `build.ps1` downloads dearxan on first run.
 
 | Folder | |
 |---|---|
@@ -50,6 +50,8 @@ pwsh .\build.ps1 -Package   # build and create the release zips in .\out
 - [dearxan](https://github.com/tremwil/dearxan) by tremwil — Arxan neutering
 - [MinHook](https://github.com/TsudaKageyu/minhook) by Tsuda Kageyu — function hooking
 - [ds2-mods-rs](https://github.com/Banon-Labs/ds2-mods-rs) — reference for loading next to Seamless Co-op
+- [ModEngine2](https://github.com/soulsmods/ModEngine2) — reference for how Dark Souls III loads files
+- [UXM](https://github.com/JKAnderson/UXM) — Dark Souls III archive keys
 - The Souls modding community for documenting the games' file formats
 
 ## License
@@ -64,4 +66,4 @@ pwsh .\build.ps1 -Package   # build and create the release zips in .\out
 и сразу обновляет их после переназначения.
 
 - **Dark Souls II: SotFS** — готово (1.0.1), [подробности и установка](games/ds2/README.md).
-- **Dark Souls III** — в планах.
+- **Dark Souls III** — в тестировании (0.1.0), [подробности](games/ds3/README.md).

@@ -1,3 +1,5 @@
+using DynamicKeyPrompts.Icons;
+
 namespace DynamicKeyPrompts;
 
 /// Key code -> label. Uses the game's own localised key names (win32OnlyMessage), shortened
@@ -44,20 +46,15 @@ static class KeyNames
     }
 
     /// Label for "move the mouse" (the camera stick on PC).
-    public static string MouseMovement => Russian ? "Мышь" : "Mouse";
+    public static string MouseMovement => KeyCodeNames.MouseMovement(Russian);
 
     static bool Russian => s_russian ??= GameName(0, 0)?.Contains("ЛКМ") == true;
 
+    static readonly Dictionary<int, KeycapSpec> s_specs = KeycapSet.All().ToDictionary(e => e.Code, e => e.Spec);
+
     /// Short labels for keys whose game names are long. null = use the game's name.
-    static string? Short(int code) => code switch
+    static string? Short(int code) => s_specs.GetValueOrDefault(code) is KeycapSpec.Mouse m ? KeyCodeNames.Mouse(m, Russian) : code switch
     {
-        0 => Russian ? "ЛКМ" : "LMB",
-        1 => Russian ? "ПКМ" : "RMB",
-        2 => Russian ? "СКМ" : "MMB",
-        6 => Russian ? "Колесо↑" : "Wheel↑",
-        7 => Russian ? "Колесо↓" : "Wheel↓",
-        11 => Russian ? "2×ЛКМ" : "2×LMB",
-        12 => Russian ? "2×ПКМ" : "2×RMB",
         83 => "BkSp",
         126 => "Space",
         111 => "Shift",

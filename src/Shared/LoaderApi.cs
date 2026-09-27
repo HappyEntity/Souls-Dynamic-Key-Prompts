@@ -57,6 +57,15 @@ static unsafe class Loader
         fixed (byte* p = buf) s_api.Log(p);
     }
 
+    static readonly HashSet<string> s_loggedOnce = new();
+
+    /// Logs a line only the first time it occurs (for hooks that run every frame).
+    public static void LogOnce(string line)
+    {
+        lock (s_loggedOnce) if (!s_loggedOnce.Add(line)) return;
+        Log(line);
+    }
+
     /// Installs and enables a MinHook detour. Returns the trampoline to the original, or 0.
     public static nint Hook(string name, nint target, nint detour)
     {
