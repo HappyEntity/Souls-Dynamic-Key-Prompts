@@ -47,8 +47,8 @@ external_dlls = [
 The DLL may be renamed (e.g. `DynamicKeyPrompts-loader.dll`). List the loader, not
 `DynamicKeyPrompts\DynamicKeyPrompts.dll`.
 
-A ModEngine2 mod that replaces `menu\05_Dummy.tpf.dcx` itself hides the key icons; the prompts then
-fall back to text.
+If another ModEngine2 mod replaces `menu\05_Dummy.tpf.dcx`, the key icons are added to that mod's
+version of the file, so both work.
 
 ## Settings
 

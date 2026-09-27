@@ -79,8 +79,8 @@ ModEngine2\dkp\, and list the DLL in config_darksouls3.toml:
 (The DLL may be renamed, e.g. to DynamicKeyPrompts-loader.dll. List the
 loader, not DynamicKeyPrompts\DynamicKeyPrompts.dll.)
 
-A ModEngine2 mod that replaces menu\05_Dummy.tpf.dcx itself would hide the
-key icons; the prompts then fall back to text.
+If another ModEngine2 mod replaces menu\05_Dummy.tpf.dcx, the key icons are
+added to that mod's version of the file, so both work.
 
 
 HOW IT WORKS

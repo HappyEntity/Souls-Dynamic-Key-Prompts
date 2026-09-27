@@ -2,6 +2,11 @@
 
 ## Dark Souls III
 
+### 0.1.1
+
+- When another ModEngine2 mod replaces `menu\05_Dummy.tpf.dcx`, the key icons are added to that
+  mod's version of the file instead of the game's, so the other mod's textures are kept.
+
 ### 0.1.0
 
 First test version.
