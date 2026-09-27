@@ -38,6 +38,15 @@ static unsafe class Loader
         return true;
     }
 
+    /// The game build the core was made for: logs and returns false for any other exe.
+    public static bool IsSupportedGame(string exeName, uint expectedTimeDateStamp)
+    {
+        uint ts = Native.TimeDateStamp(GameBase);
+        if (ts == expectedTimeDateStamp) return true;
+        Log($"core: unsupported {exeName} (timestamp {ts:X8}, expected {expectedTimeDateStamp:X8}) - disabled");
+        return false;
+    }
+
     public static void Log(string line)
     {
         if (s_api.Log == null) return;

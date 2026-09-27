@@ -141,12 +141,12 @@ game starts.
 
 Report problems on the mod's Nexus page or on GitHub:
   https://www.nexusmods.com/darksouls2/mods/1738?tab=bugs
-  https://github.com/HappyEntity/DS2-Dynamic-Key-Prompts/issues
+  https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/issues
 
 
 SOURCE CODE
 -----------
-https://github.com/HappyEntity/DS2-Dynamic-Key-Prompts
+https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts
 
 
 CREDITS

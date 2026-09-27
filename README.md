@@ -1,98 +1,26 @@
 # Dynamic Key Prompts
 
-**Dark Souls II: Scholar of the First Sin** always shows Xbox buttons in its prompts, even when you
-play with keyboard and mouse. Existing mods only swap the button textures for fixed keys, which is
-wrong as soon as you rebind anything.
+A mod for FromSoftware's **Dark Souls** games on PC.
+
+Dark Souls II and Dark Souls III always show Xbox buttons in their prompts, even when you play with
+keyboard and mouse. Existing mods only swap the button textures for fixed keys, which is wrong as
+soon as you rebind anything.
 
 Dynamic Key Prompts reads **your current key bindings** from the game and shows the matching key or
 mouse button in every prompt — menus, the help bar, interaction prompts ("Rest at bonfire"),
 tutorial messages — and updates immediately when you rebind a key.
 
-**Download:** [Nexus Mods](https://www.nexusmods.com/darksouls2/mods/1738) ·
-[GitHub Releases](https://github.com/HappyEntity/DS2-Dynamic-Key-Prompts/releases)
+![Dark Souls II equipment menu: before and after](games/ds2/media/before-after-menu.jpg)
 
-![Equipment menu: before and after](media/before-after-menu.jpg)
+## Games
 
-- Key and mouse icons drawn in the game's style (three built-in themes, fully editable), or plain text labels
-- Context aware: in menus A means *Confirm*, in the world it means *Interact* — each resolves to its own key
-- Mouse buttons where you use them (attack = LMB, lock-on = MMB), keys elsewhere — configurable
-- The game's files are not modified; delete one DLL to uninstall
-- Works together with **Seamless Co-op**, **DS2 Lighting Engine** and **OptiScaler**
-
-## Requirements
-
-- Dark Souls II: Scholar of the First Sin, Steam, current version (1.0.3, build 9527516)
-- Windows 10/11 x64
-
-## Installation
-
-**Vortex:** use *Mod Manager Download* on the [Nexus Mods page](https://www.nexusmods.com/darksouls2/mods/1738)
-and deploy — the files go to the `Game` folder.
-
-**Manually:** download the latest release from [Nexus Mods](https://www.nexusmods.com/darksouls2/mods/1738) or
-[GitHub Releases](https://github.com/HappyEntity/DS2-Dynamic-Key-Prompts/releases), then:
-
-1. Open the game folder: Steam → Dark Souls II: SotFS → Manage → Browse local files → `Game`.
-2. Copy `dinput8.dll` and the `DynamicKeyPrompts` folder there
-   (next to `DarkSoulsII.exe`).
-3. Start the game as usual (also through `ds2sc_launcher.exe` for Seamless Co-op).
-
-Uninstall: delete `dinput8.dll` and the `DynamicKeyPrompts` folder.
-
-> The mod loads through `dinput8.dll`. If another mod already uses that file, use the alternative
-> loader `xinput1_3.dll` (separate download) instead. With Ultimate ASI Loader, `dinput8.dll` can
-> also be renamed to `DynamicKeyPrompts.asi` (not tested).
-
-## Settings
-
-`DynamicKeyPrompts\DynamicKeyPrompts.ini`:
-
-| Setting | Values | |
+| Game | Status | |
 |---|---|---|
-| `Style` | `icons` / `text` | Key icons or text labels such as `[E]` |
-| `IconTheme` | `dark` / `minimal` / `silver` / your own | Look of the icons |
-| `Labels` | `auto` / `keyboard` / `mouse` / `both` | Which binding to show when an action has a key and a mouse button |
-| `ShortNames`, `Format`, `Color` | | Text style options |
-| `[Bindings]` | `<input id>=<text>` | Override the label of a single action |
+| Dark Souls II: Scholar of the First Sin | ✅ 1.0.1 | [Readme](games/ds2/README.md) · [Nexus Mods](https://www.nexusmods.com/darksouls2/mods/1738) |
+| Dark Souls III | Planned | |
 
-### Custom icons
-
-![Built-in themes: dark, minimal, silver](media/themes.png)
-
-Each theme is one sprite sheet in `DynamicKeyPrompts\icons\`: `<theme>.png` with all icons and
-`<theme>.txt` with the rectangle of every icon (`Name X Y Width Height`). The built-in sheets are
-written there on first start. Edit a sheet, or copy `dark.png`/`dark.txt` to `mytheme.png`/`mytheme.txt`
-and set `IconTheme=mytheme`. Icons are scaled to the game's text height, keeping their proportions;
-the patched font is rebuilt automatically on the next start.
-
-## Playing online
-
-The mod only changes what you see: the prompt text and a copy of the font. It doesn't touch saves,
-params, items or stats and sends nothing over the network.
-
-- **Seamless Co-op:** safe. Seamless uses its own network and doesn't connect to FromSoftware's servers.
-- **Official online:** very likely fine for the same reasons, but like most DLL mods it hooks game code
-  and disables the game's Arxan anti-tamper, so there is no 100% guarantee. Use at your own risk.
-
-## Troubleshooting
-
-`DynamicKeyPrompts\DynamicKeyPrompts.log` tells what the mod did. Set `Diagnostics=1` for a detailed
-log; pressing F9 in game then writes your current bindings to it. Please attach the log when
-[reporting a problem](https://github.com/HappyEntity/DS2-Dynamic-Key-Prompts/issues).
-
-## How it works
-
-- `dinput8.dll` (or `xinput1_3.dll`) is a small native loader: it forwards DirectInput / XInput to Windows, neuters the game's
-  Arxan anti-tamper with [dearxan](https://github.com/tremwil/dearxan) before the game starts, and
-  loads the main module. When the game is started by Seamless Co-op's launcher, dearxan is not used:
-  the loader waits until `ds2sc.dll` has loaded and starts the main module when the game's own code
-  begins to run.
-- `DynamicKeyPrompts.dll` (C#, compiled to native code) hooks the game's text lookup, finds the
-  gamepad button characters in each message and replaces them with the key bound to the same action,
-  reading the bindings the game itself uses.
-- Button icons in DS2 are characters of the game font. For icon mode the mod builds a copy of the
-  font with extra key glyphs (in `DynamicKeyPrompts\cache`) and hands that copy to the game when it
-  opens its font file.
+All releases: [GitHub Releases](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/releases) ·
+[Changelog](CHANGELOG.md) · [Report a problem](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/issues)
 
 ## Building from source
 
@@ -100,27 +28,29 @@ Requirements: Visual Studio 2026 (C++ desktop development and .NET desktop devel
 .NET 10 SDK.
 
 ```powershell
-pwsh .\build.ps1            # build into .\out\dist
+pwsh .\build.ps1            # build every game into .\out\<game>
 pwsh .\build.ps1 -Install   # build and copy into the game folder (found through Steam, or -GameDir)
 pwsh .\build.ps1 -Install -Loader xinput1_3   # same, with the alternative loader
-pwsh .\build.ps1 -Package   # build and create the release zips in .\out (main + xinput1_3 loader)
+pwsh .\build.ps1 -Package   # build and create the release zips in .\out
 ```
 
-`build.ps1` downloads dearxan on first run.
+`-Game ds2` selects the game for `-Install` (the default). `build.ps1` downloads dearxan on first run.
 
-| Project | |
+| Folder | |
 |---|---|
-| `src/Loader` | `dinput8.dll` / `xinput1_3.dll` — C++ proxy loader (dearxan, MinHook); the `Proxy` property selects the variant |
-| `src/Core` | `DynamicKeyPrompts.dll` — the mod (C#, NativeAOT) |
-| `src/Common` | Game file formats (DCX, BND4, TPF, FMG, CCM, DDS) and key icon / font generation, shared by Core and Ds2Tool |
-| `tools/Ds2Tool` | Command-line utility for the game's files, used during development (`Ds2Tool` without arguments lists its commands) |
+| `src/Loader` | `dinput8.dll` / `xinput1_3.dll` — C++ proxy loader (dearxan, MinHook), the same for every game; the `Proxy` property selects the variant |
+| `src/Games/<Game>` | `DynamicKeyPrompts.dll` for one game — its hooks, addresses and prompt tables (C#, NativeAOT) |
+| `src/Shared` | Code compiled into every game's DLL: loader interface, settings, memory helpers, common build settings (`Core.props`) |
+| `src/Common` | Game file formats (DCX, BND4, TPF, FMG, CCM, DDS) and key icon / font generation, shared by the games and the tools |
+| `tools/Ds2Tool` | Command-line utility for Dark Souls II's files, used during development (`Ds2Tool` without arguments lists its commands) |
+| `games/<game>` | Everything player-facing for one game: readme, screenshots, the readme inside the release zip, the Nexus Mods description |
 
 ## Credits
 
 - [dearxan](https://github.com/tremwil/dearxan) by tremwil — Arxan neutering
 - [MinHook](https://github.com/TsudaKageyu/minhook) by Tsuda Kageyu — function hooking
 - [ds2-mods-rs](https://github.com/Banon-Labs/ds2-mods-rs) — reference for loading next to Seamless Co-op
-- The Souls modding community for documenting the game's file formats
+- The Souls modding community for documenting the games' file formats
 
 ## License
 
@@ -130,9 +60,8 @@ pwsh .\build.ps1 -Package   # build and create the release zips in .\out (main +
 
 ## Кратко по-русски
 
-Мод показывает в подсказках Dark Souls II: SotFS клавиши, которые **вы действительно назначили**,
-вместо кнопок геймпада, и сразу обновляет их после переназначения. Установка: скопировать
-`dinput8.dll` и папку `DynamicKeyPrompts` в папку `Game` рядом с `DarkSoulsII.exe`. Настройки — в
-`DynamicKeyPrompts\DynamicKeyPrompts.ini`, свои значки — в `DynamicKeyPrompts\icons\`. Совместим с
-Seamless Co-op, DS2 Lighting Engine и OptiScaler. С Seamless Co-op безопасен для онлайна: он не
-подключается к серверам FromSoftware; на официальных серверах 100% гарантии, как у любого DLL-мода, нет.
+Мод показывает в подсказках клавиши, которые **вы действительно назначили**, вместо кнопок геймпада,
+и сразу обновляет их после переназначения.
+
+- **Dark Souls II: SotFS** — готово (1.0.1), [подробности и установка](games/ds2/README.md).
+- **Dark Souls III** — в планах.

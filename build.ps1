@@ -1,24 +1,32 @@
-# Builds Dynamic Key Prompts: the loader (C++, as dinput8.dll and as xinput1_3.dll) and the core
-# (DynamicKeyPrompts.dll, C# NativeAOT), laid out in .\out\dist exactly as they go into the game folder.
+# Builds Dynamic Key Prompts: the loader (C++, as dinput8.dll and as xinput1_3.dll) and the core of every
+# supported game (DynamicKeyPrompts.dll, C# NativeAOT), laid out in .\out\<game> exactly as they go into
+# the game folder.
 #
 #   pwsh .\build.ps1                               build
 #   pwsh .\build.ps1 -Install                      build and copy into the game folder
 #   pwsh .\build.ps1 -Install -Loader xinput1_3    same, with the alternative loader
 #   pwsh .\build.ps1 -Package                      build and create the release zips in .\out
 #
-# The game folder is found through Steam; override with -GameDir or the DS2_GAME_DIR variable.
+# The game folder is found through Steam; override with -GameDir or the game's variable (DS2_GAME_DIR).
 param(
     [switch]$Install,
     [switch]$Package,
+    [ValidateSet("ds2")]
+    [string]$Game = "ds2",
     [ValidateSet("dinput8", "xinput1_3")]
     [string]$Loader = "dinput8",
     [string]$Configuration = "Release",
-    [string]$GameDir = $env:DS2_GAME_DIR
+    [string]$GameDir
 )
 $loaders = "dinput8", "xinput1_3"
 $ErrorActionPreference = "Stop"
 $root = $PSScriptRoot
 $modName = "DynamicKeyPrompts"
+
+# Per game: core project (src\Games\<Dir>), release zip name, Steam folder, executable, game folder variable
+$games = [ordered]@{
+    ds2 = @{ Dir = "Ds2"; Zip = $modName; Steam = "Dark Souls II Scholar of the First Sin\Game"; Exe = "DarkSoulsII.exe"; Env = "DS2_GAME_DIR" }
+}
 
 # ---------------------------------------------------------------- dependencies
 
@@ -51,33 +59,44 @@ foreach ($proxy in $loaders) {
     if ($LASTEXITCODE) { throw "loader build failed ($proxy)" }
 }
 
-$corePublish = "$root\obj\Core\publish"
-& dotnet publish "$root\src\Core\Core.csproj" -c $Configuration -o $corePublish --nologo
-if ($LASTEXITCODE) { throw "core build failed" }
+foreach ($key in $games.Keys) {
+    $g = $games[$key]
+    $src = "$root\src\Games\$($g.Dir)"
+    $publish = "$root\obj\publish-$key"
+    & dotnet publish "$src\$($g.Dir).csproj" -c $Configuration -o $publish --nologo
+    if ($LASTEXITCODE) { throw "$key core build failed" }
 
-$dist = "$root\out\dist"
-if (Test-Path $dist) { Remove-Item $dist -Recurse -Force }
-New-Item -ItemType Directory -Force "$dist\$modName" | Out-Null
-Copy-Item "$root\out\$Configuration\dinput8.dll" $dist
-Copy-Item "$corePublish\$modName.dll" "$dist\$modName\"
-Copy-Item "$root\src\Core\$modName.ini" "$dist\$modName\"
-# The alternative loader is shipped separately (a player installs one of the two).
-$distAlt = "$root\out\dist-xinput1_3"
+    $dist = "$root\out\$key"
+    if (Test-Path $dist) { Remove-Item $dist -Recurse -Force }
+    New-Item -ItemType Directory -Force "$dist\$modName" | Out-Null
+    Copy-Item "$root\out\$Configuration\dinput8.dll" $dist
+    Copy-Item "$publish\$modName.dll" "$dist\$modName\"
+    Copy-Item "$src\$modName.ini" "$dist\$modName\"
+    Write-Host "Built $key into $dist"
+}
+# The alternative loader is shipped separately (a player installs one of the two); it is the same for every game.
+$distAlt = "$root\out\xinput1_3"
 if (Test-Path $distAlt) { Remove-Item $distAlt -Recurse -Force }
 New-Item -ItemType Directory -Force $distAlt | Out-Null
 Copy-Item "$root\out\$Configuration\xinput1_3.dll" $distAlt
-Write-Host "Built into $dist (alternative loader: $distAlt)"
+Write-Host "Alternative loader: $distAlt"
 
 # ---------------------------------------------------------------- package
 
 if ($Package) {
-    $version = ([xml](Get-Content "$root\src\Core\Core.csproj")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
-    # Player-facing readme (install / settings) at the top of the archive, where it is seen first;
-    # the repository README is for developers. Legal files go into the mod folder.
-    Copy-Item "$root\package\$modName-README.txt" $dist
-    Copy-Item "$root\LICENSE", "$root\THIRD-PARTY-NOTICES.md" "$dist\$modName\"
-    Copy-Item "$root\package\$modName-xinput1_3-loader-README.txt" $distAlt
-    $zips = @{ "$root\out\$modName-$version.zip" = "$dist\*"; "$root\out\$modName-$version-xinput1_3-loader.zip" = "$distAlt\*" }
+    $zips = @{}
+    foreach ($key in $games.Keys) {
+        $g = $games[$key]
+        $dist = "$root\out\$key"
+        $version = ([xml](Get-Content "$root\src\Games\$($g.Dir)\$($g.Dir).csproj")).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+        # Player-facing readme (install / settings) at the top of the archive, where it is seen first;
+        # the repository readmes are for the web. Legal files go into the mod folder.
+        Copy-Item "$root\games\$key\$modName-README.txt" $dist
+        Copy-Item "$root\LICENSE", "$root\THIRD-PARTY-NOTICES.md" "$dist\$modName\"
+        $zips["$root\out\$($g.Zip)-$version.zip"] = "$dist\*"
+        if ($key -eq "ds2") { $zips["$root\out\$modName-$version-xinput1_3-loader.zip"] = "$distAlt\*" }
+    }
+    Copy-Item "$root\games\$modName-xinput1_3-loader-README.txt" $distAlt
     foreach ($zip in $zips.Keys) {
         if (Test-Path $zip) { Remove-Item $zip }
         Compress-Archive -Path $zips[$zip] -DestinationPath $zip
@@ -87,7 +106,7 @@ if ($Package) {
 
 # ---------------------------------------------------------------- install
 
-function Find-GameDir {
+function Find-GameDir($g) {
     $steam = (Get-ItemProperty "HKCU:\Software\Valve\Steam" -ErrorAction SilentlyContinue).SteamPath
     if (-not $steam) { return $null }
     $libraries = @($steam)
@@ -96,17 +115,20 @@ function Find-GameDir {
         $libraries += Select-String -Path $vdf -Pattern '"path"\s+"([^"]+)"' | ForEach-Object { $_.Matches[0].Groups[1].Value -replace '\\\\', '\' }
     }
     foreach ($lib in $libraries | Select-Object -Unique) {
-        $dir = Join-Path $lib "steamapps\common\Dark Souls II Scholar of the First Sin\Game"
-        if (Test-Path (Join-Path $dir "DarkSoulsII.exe")) { return $dir }
+        $dir = Join-Path $lib "steamapps\common\$($g.Steam)"
+        if (Test-Path (Join-Path $dir $g.Exe)) { return $dir }
     }
     return $null
 }
 
 if ($Install) {
-    if (-not $GameDir) { $GameDir = Find-GameDir }
-    if (-not $GameDir -or -not (Test-Path (Join-Path $GameDir "DarkSoulsII.exe"))) {
-        throw "Game folder not found. Pass -GameDir '<...>\Dark Souls II Scholar of the First Sin\Game' or set DS2_GAME_DIR."
+    $g = $games[$Game]
+    if (-not $GameDir) { $GameDir = [Environment]::GetEnvironmentVariable($g.Env) }
+    if (-not $GameDir) { $GameDir = Find-GameDir $g }
+    if (-not $GameDir -or -not (Test-Path (Join-Path $GameDir $g.Exe))) {
+        throw "Game folder not found. Pass -GameDir '<...>\$($g.Steam)' or set $($g.Env)."
     }
+    $dist = "$root\out\$Game"
     Copy-Item "$root\out\$Configuration\$Loader.dll" $GameDir -Force
     New-Item -ItemType Directory -Force "$GameDir\$modName" | Out-Null
     Copy-Item "$dist\$modName\$modName.dll" "$GameDir\$modName\" -Force

@@ -4,29 +4,37 @@
   </Configurations>
   <Folder Name="/src/">
     <Project Path="src/Common/Common.csproj" />
-    <Project Path="src/Core/Core.csproj" />
     <Project Path="src/Loader/Loader.vcxproj" />
+    <File Path="src/Shared/Core.props" />
+  </Folder>
+  <Folder Name="/src/Games/">
+    <Project Path="src/Games/Ds2/Ds2.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/Ds2Tool/Ds2Tool.csproj" />
   </Folder>
-  <Folder Name="/package/">
-    <File Path="package/DynamicKeyPrompts-README.txt" />
-    <File Path="package/DynamicKeyPrompts-xinput1_3-loader-README.txt" />
-    <File Path="package/nexus-description.bbcode" />
+  <Folder Name="/games/">
+    <File Path="games/DynamicKeyPrompts-xinput1_3-loader-README.txt" />
   </Folder>
-  <Folder Name="/media/">
-    <File Path="media/before-after-bonfire-menu.jpg" />
-    <File Path="media/before-after-bonfire.jpg" />
-    <File Path="media/before-after-lockon.jpg" />
-    <File Path="media/before-after-menu.jpg" />
-    <File Path="media/themes.png" />
+  <Folder Name="/games/ds2/">
+    <File Path="games/ds2/DynamicKeyPrompts-README.txt" />
+    <File Path="games/ds2/nexus-description.bbcode" />
+    <File Path="games/ds2/README.md" />
   </Folder>
-  <Folder Name="/Solution Items/">
+  <Folder Name="/games/ds2/media/">
+    <File Path="games/ds2/media/before-after-bonfire-menu.jpg" />
+    <File Path="games/ds2/media/before-after-bonfire.jpg" />
+    <File Path="games/ds2/media/before-after-lockon.jpg" />
+    <File Path="games/ds2/media/before-after-menu.jpg" />
+    <File Path="games/ds2/media/themes.png" />
+  </Folder>
+  <Folder Name="/build/">
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
     <File Path="build.ps1" />
+  </Folder>
+  <Folder Name="/docs/">
     <File Path="CHANGELOG.md" />
     <File Path="LICENSE" />
     <File Path="README.md" />

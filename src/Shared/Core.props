@@ -1,12 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
 
+  <!-- Build settings of every game core (imported by src/Games/<Game>/<Game>.csproj): a native DLL named
+       DynamicKeyPrompts.dll, loaded by the same loader, with the code in src/Shared and src/Common. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <OutputType>Library</OutputType>
     <AssemblyName>DynamicKeyPrompts</AssemblyName>
-    <Version>1.0.1</Version>
-    <Product>Dynamic Key Prompts</Product>
-    <Description>Shows the keys you actually bound in Dark Souls II: Scholar of the First Sin button prompts.</Description>
     <RootNamespace>DynamicKeyPrompts</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -26,7 +25,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
+    <Compile Include="$(MSBuildThisFileDirectory)*.cs" Link="Shared\%(Filename)%(Extension)" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\Common\Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace DynamicKeyPrompts;
@@ -85,39 +84,6 @@ static class LiveBindings
         if (entries != null)
             foreach (var (input, key) in entries)
                 sb.Append($"\n  input {input,2} code {key.Code,3} ({key.Code:X2}) mod {key.Modifier,2} \"{KeyNames.Get(key.Code)}\"");
-        return sb.ToString();
-    }
-}
-
-/// Safe reads of our own process memory (never faults on bad pointers).
-static unsafe class Memory
-{
-    [DllImport("kernel32.dll")] static extern nint GetCurrentProcess();
-    [DllImport("kernel32.dll")] static extern int ReadProcessMemory(nint proc, nint addr, void* buf, nint size, out nint read);
-
-    public static byte[]? Read(nint addr, int size)
-    {
-        var buf = new byte[size];
-        fixed (byte* p = buf)
-            return ReadProcessMemory(GetCurrentProcess(), addr, p, size, out nint n) != 0 && n == size ? buf : null;
-    }
-
-    public static bool TryReadPtr(nint addr, out nint value)
-    {
-        nint v = 0;
-        bool ok = ReadProcessMemory(GetCurrentProcess(), addr, &v, sizeof(nint), out nint n) != 0 && n == sizeof(nint);
-        value = v;
-        return ok;
-    }
-
-    public static string Hex(ReadOnlySpan<byte> b)
-    {
-        var sb = new StringBuilder(b.Length * 3);
-        for (int i = 0; i < b.Length; i++)
-        {
-            if (i > 0 && i % 4 == 0) sb.Append(' ');
-            sb.Append(b[i].ToString("X2"));
-        }
         return sb.ToString();
     }
 }

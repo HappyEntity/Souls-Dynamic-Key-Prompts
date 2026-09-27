@@ -1,5 +1,5 @@
 // Interface between the native loader (dinput8.dll) and the managed core
-// (DynamicKeyPrompts.dll, C# NativeAOT). Keep in sync with src/Core/LoaderApi.cs.
+// (DynamicKeyPrompts.dll, C# NativeAOT). Keep in sync with src/Shared/LoaderApi.cs.
 #pragma once
 #include <stdint.h>
 

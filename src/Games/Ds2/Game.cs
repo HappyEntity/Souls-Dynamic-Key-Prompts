@@ -58,27 +58,10 @@ unsafe static class Game
     public static nint Base => Loader.GameBase;
     public static nint At(uint rva) => Base + (nint)rva;
 
-    public static uint TimeDateStamp()
-    {
-        byte* b = (byte*)Base;
-        int peOff = *(int*)(b + 0x3C);
-        return *(uint*)(b + peOff + 8);
-    }
+    public static bool PrologueMatches(uint rva, byte[] expected) => Native.BytesMatch(At(rva), expected);
 
-    public static bool PrologueMatches(uint rva, byte[] expected)
-    {
-        byte* p = (byte*)At(rva);
-        for (int i = 0; i < expected.Length; i++)
-            if (p[i] != expected[i]) return false;
-        return true;
-    }
-
-    /// True if the function starts with a jump another mod placed there (jmp rel32 / jmp [rip+x]).
-    public static bool IsDetoured(uint rva)
-    {
-        byte* p = (byte*)At(rva);
-        return p[0] == 0xE9 || p[0] == 0xFF && p[1] == 0x25;
-    }
+    /// True if the function starts with a jump another mod placed there.
+    public static bool IsDetoured(uint rva) => Native.IsDetoured(At(rva));
 
     // ---- original (un-hooked) GetMessage, set by TextHook
     public static delegate* unmanaged<int, int, char*> GetMessageOriginal;

@@ -1,6 +1,8 @@
 # Changelog
 
-## 1.0.1
+## Dark Souls II: Scholar of the First Sin
+
+### 1.0.1
 
 - Fixed the game closing right after start with Seamless Co-op on some systems (crash
   `0xC0000026` in `ntdll.dll`). When the game is started by Seamless Co-op's launcher the mod
@@ -8,7 +10,7 @@
 - The .NET runtime of the mod only handles faults inside the mod, not exceptions of the game
   or other mods.
 
-## 1.0.0
+### 1.0.0
 
 First release.
 

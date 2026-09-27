@@ -14,12 +14,7 @@ static unsafe class Entry
             if (!Loader.Attach(api)) return -1;
             Loader.Log($"core: DynamicKeyPrompts {typeof(Entry).Assembly.GetName().Version} base={Loader.GameBase:X} arxan_detected={Loader.ArxanDetected} arxan_status={Loader.ArxanStatus}");
 
-            uint ts = Game.TimeDateStamp();
-            if (ts != Rva.ExpectedTimeDateStamp)
-            {
-                Loader.Log($"core: unsupported DarkSoulsII.exe (timestamp {ts:X8}, expected {Rva.ExpectedTimeDateStamp:X8}) - disabled");
-                return -2;
-            }
+            if (!Loader.IsSupportedGame("DarkSoulsII.exe", Rva.ExpectedTimeDateStamp)) return -2;
 
             Config.Load(Path.Combine(Loader.ModDir, "DynamicKeyPrompts.ini"));
             if (!Config.Enabled) return 0;
