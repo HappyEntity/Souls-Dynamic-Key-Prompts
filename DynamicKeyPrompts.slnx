@@ -27,7 +27,9 @@
     <File Path="games/ds2/media/before-after-bonfire.jpg" />
     <File Path="games/ds2/media/before-after-lockon.jpg" />
     <File Path="games/ds2/media/before-after-menu.jpg" />
+    <File Path="games/ds2/media/header.jpg" />
     <File Path="games/ds2/media/themes.png" />
+    <File Path="games/ds2/media/thumbnail.jpg" />
   </Folder>
   <Folder Name="/games/ds3/">
     <File Path="games/ds3/DynamicKeyPrompts-README.txt" />
@@ -39,6 +41,8 @@
     <File Path="games/ds3/media/before-after-bonfire.jpg" />
     <File Path="games/ds3/media/before-after-menu.jpg" />
     <File Path="games/ds3/media/before-after-tutorial.jpg" />
+    <File Path="games/ds3/media/header.jpg" />
+    <File Path="games/ds3/media/thumbnail.jpg" />
   </Folder>
   <Folder Name="/build/">
     <File Path=".editorconfig" />
