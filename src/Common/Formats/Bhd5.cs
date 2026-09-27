@@ -30,6 +30,9 @@ public sealed class Bhd5
         }
     }
 
+    /// Number of files in the archive.
+    public int Count => _entries.Count;
+
     /// Path hash: lower case, forward slashes, leading slash; h = h * 37 + c.
     public static uint Hash(string path)
     {

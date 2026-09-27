@@ -1,4 +1,4 @@
-// Ds2Tool — command-line helper for Dark Souls II SotFS file formats, used while developing
+// SoulsTool — command-line helper for the file formats of Dark Souls II and III, used while developing
 // Dynamic Key Prompts. Run without arguments for the list of commands.
 using System.Diagnostics;
 using System.Text;
@@ -12,19 +12,20 @@ var commands = new Dictionary<string, (string Usage, Action<string[]> Run)>
     ["bnd"] = ("<file> [out-dir]                      list / extract a BND4 archive (DCX ok)", Bnd),
     ["tpf"] = ("<file> [out-dir]                      list / extract the textures of a TPF", TpfCmd),
     ["dds2png"] = ("<file.dds>...                        convert DDS textures to PNG next to them", Dds2Png),
-    ["ccm"] = ("<file.ccm> [all]                      list font glyphs (special symbols only unless 'all')", CcmCmd),
+    ["ccm"] = ("<file.ccm> [all]                      list font glyphs of a DS2 font (special symbols only unless 'all')", CcmCmd),
     ["fmg"] = ("<file.fmg>...                        dump message files (pad icons shown as {U+XXXX})", FmgCmd),
-    ["arc"] = ("<game-dir> <GameData|...> <out-dir> <path|@list>...  extract files from the game archives", Arc),
+    ["arc"] = ("<game-dir> <archive> <out-dir> <path|@list>...  extract files from the game archives\n" +
+               "                                                  (DS2: GameData, ...; DS3: Data1)", Arc),
     ["wstrings"] = ("<file>                             list UTF-16 strings with file offsets", WStrings),
     ["crop"] = ("<file.dds> <out.png> <scale> x1,y1,x2,y2...  crop texture regions side by side", Crop),
-    ["fontpatch"] = ("<in.fontbnd.dcx> <out.fontbnd.dcx> [preview-dir]  add the key icons to a game font", FontPatch),
+    ["fontpatch"] = ("<in.fontbnd.dcx> <out.fontbnd.dcx> [preview-dir]  add the key icons to a DS2 font", FontPatch),
     ["sheet"] = ("<theme> <out-dir>                    write a built-in theme's icon sheet (.png + .txt)", Sheet),
     ["keycap-preview"] = ("<out.png> [line-height=27] [scale=2]  sample icons of every theme", KeycapPreview),
 };
 
 if (args.Length == 0 || !commands.TryGetValue(args[0], out var command))
 {
-    Console.WriteLine("Ds2Tool <command> ...");
+    Console.WriteLine("SoulsTool <command> ...");
     foreach (var (name, (usage, _)) in commands) Console.WriteLine($"  {name,-15} {usage}");
     return args.Length == 0 ? 0 : 1;
 }
@@ -96,20 +97,34 @@ static void FmgCmd(string[] a)
 static void Arc(string[] a)
 {
     string gameDir = a[1], name = a[2], outDir = a[3];
-    string key = name == "GameData" ? "GameDataKeyCode.pem" : name + "KeyCode.pem";
-    var arc = new Ds2Archive(Path.Combine(gameDir, name + "Ebl.bhd"), Path.Combine(gameDir, key), Path.Combine(gameDir, name + "Ebl.bdt"));
-    Console.WriteLine($"{arc.Entries.Count} entries");
+    Bhd5 arc;
+    if (File.Exists(Path.Combine(gameDir, name + "Ebl.bhd")))
+    {
+        // Dark Souls II: GameDataEbl.bhd with GameDataKeyCode.pem next to it
+        string key = File.ReadAllText(Path.Combine(gameDir, name + "KeyCode.pem"));
+        arc = new Bhd5(Path.Combine(gameDir, name + "Ebl.bhd"), key, Path.Combine(gameDir, name + "Ebl.bdt"), ds3: false);
+    }
+    else
+    {
+        // Dark Souls III: Data1.bhd, the key is built in
+        string key = name.ToLowerInvariant() switch
+        {
+            "data1" => ArchiveKeys.Data1,
+            _ => throw new ArgumentException($"no key for the Dark Souls III archive {name} (known: Data1)"),
+        };
+        arc = new Bhd5(Path.Combine(gameDir, name + ".bhd"), key, Path.Combine(gameDir, name + ".bdt"), ds3: true);
+    }
+    Console.WriteLine($"{arc.Count} entries");
     var paths = a.Skip(4).SelectMany(p => p.StartsWith('@') ? File.ReadAllLines(p[1..]) : [p]).Where(p => p.Length > 0).Distinct();
     int found = 0;
     foreach (var p in paths)
     {
-        var entry = arc.Find(p);
-        if (entry == null) continue;
+        if (arc.Read(p) is not { } data) continue;
         found++;
         var outPath = Path.Combine(outDir, p.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(outPath)!);
-        File.WriteAllBytes(outPath, arc.Read(entry));
-        Console.WriteLine($"  {entry.Size,10} {p}");
+        File.WriteAllBytes(outPath, data);
+        Console.WriteLine($"  {data.Length,10} {p}");
     }
     Console.WriteLine($"found {found}");
 }

@@ -41,8 +41,8 @@ pwsh .\build.ps1 -Package   # build and create the release zips in .\out
 | `src/Loader` | `dinput8.dll` / `xinput1_3.dll` — C++ proxy loader (dearxan, MinHook), the same for every game; the `Proxy` property selects the variant |
 | `src/Games/<Game>` | `DynamicKeyPrompts.dll` for one game — its hooks, addresses and prompt tables (C#, NativeAOT) |
 | `src/Shared` | Code compiled into every game's DLL: loader interface, settings, memory helpers, common build settings (`Core.props`) |
-| `src/Common` | Game file formats (DCX, BND4, TPF, FMG, CCM, DDS) and key icon / font generation, shared by the games and the tools |
-| `tools/Ds2Tool` | Command-line utility for Dark Souls II's files, used during development (`Ds2Tool` without arguments lists its commands) |
+| `src/Common` | Game file formats (BHD5 archives, DCX, BND4, TPF, FMG, CCM, DDS) and key icon / font generation, shared by the games and the tools |
+| `tools/SoulsTool` | Command-line utility for the games' files (archives, DCX, BND4, TPF, FMG, fonts, icon sheets), used during development (`SoulsTool` without arguments lists its commands) |
 | `games/<game>` | Everything player-facing for one game: readme, screenshots, the readme inside the release zip, the Nexus Mods description |
 
 ## Credits

@@ -12,7 +12,8 @@
     <Project Path="src/Games/Ds3/Ds3.csproj" />
   </Folder>
   <Folder Name="/tools/">
-    <Project Path="tools/Ds2Tool/Ds2Tool.csproj" />  </Folder>
+    <Project Path="tools/SoulsTool/SoulsTool.csproj" />
+  </Folder>
   <Folder Name="/games/">
     <File Path="games/DynamicKeyPrompts-xinput1_3-loader-README.txt" />
   </Folder>

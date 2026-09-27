@@ -1,7 +1,8 @@
-namespace DynamicKeyPrompts;
+namespace DynamicKeyPrompts.Formats;
 
-/// Public RSA key of the Dark Souls III archive Data1.bhd (embedded in the game, published with UXM).
-static class ArchiveKeys
+/// Public RSA keys of Dark Souls III archives (embedded in the game, published with UXM). Dark Souls II
+/// ships its keys next to the archives (GameDataKeyCode.pem, ...).
+public static class ArchiveKeys
 {
     public const string Data1 = """
         -----BEGIN RSA PUBLIC KEY-----

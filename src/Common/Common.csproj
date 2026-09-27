@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Game file formats and key icon / font generation, shared by the mod core and Ds2Tool. -->
+  <!-- Game file formats and key icon / font generation, shared by the game cores and SoulsTool. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>DynamicKeyPrompts.Common</AssemblyName>
