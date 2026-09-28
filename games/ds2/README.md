@@ -43,8 +43,11 @@ and deploy — the files go to the `Game` folder.
 Uninstall: delete `dinput8.dll` and the `DynamicKeyPrompts` folder.
 
 > The mod loads through `dinput8.dll`. If another mod already uses that file, use the alternative
-> loader `xinput1_3.dll` (separate download) instead. With Ultimate ASI Loader, `dinput8.dll` can
-> also be renamed to `DynamicKeyPrompts.asi` (not tested).
+> loader `xinput1_3.dll` (separate download) instead.
+>
+> If both names are taken, load the mod with [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader)
+> (or another mod's DLL loader): rename the mod's `dinput8.dll` to `DynamicKeyPrompts.asi` and keep the
+> `DynamicKeyPrompts` folder next to it.
 
 ## Settings
 
@@ -89,7 +92,8 @@ log; pressing F9 in game then writes your current bindings to it. Please attach 
   Arxan anti-tamper with [dearxan](https://github.com/tremwil/dearxan) before the game starts, and
   loads the main module. When the game is started by Seamless Co-op's launcher, dearxan is not used:
   the loader waits until `ds2sc.dll` has loaded and starts the main module when the game's own code
-  begins to run.
+  begins to run. Loaded by another loader (e.g. as an `.asi` plugin), it starts the main module right
+  away, also without dearxan.
 - `DynamicKeyPrompts.dll` (C#, compiled to native code) hooks the game's text lookup, finds the
   gamepad button characters in each message and replaces them with the key bound to the same action,
   reading the bindings the game itself uses.

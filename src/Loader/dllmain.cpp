@@ -325,9 +325,49 @@ static void start_without_dearxan()
         start_at_game_code();
 }
 
+// Loaded by another mod's loader (e.g. as a plugin of Ultimate ASI Loader): it loads its plugins from
+// the game's entry point or later, so the entry point dearxan waits for is already running. Seen as
+// a dynamic load (LoadLibrary, unlike the proxy being imported by the game) that is not Seamless
+// Co-op or ModEngine2, or as the /GS security cookie the CRT replaces at the entry point having
+// changed already.
+static bool game_started()
+{
+    auto base = reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr));
+    auto nt = reinterpret_cast<const IMAGE_NT_HEADERS*>(base + reinterpret_cast<const IMAGE_DOS_HEADER*>(base)->e_lfanew);
+    const IMAGE_DATA_DIRECTORY& dir = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG];
+    if (!dir.VirtualAddress || dir.Size < offsetof(IMAGE_LOAD_CONFIG_DIRECTORY64, SecurityCookie) + sizeof(ULONGLONG))
+        return false;
+    auto cfg = reinterpret_cast<const IMAGE_LOAD_CONFIG_DIRECTORY64*>(base + dir.VirtualAddress);
+    if (!cfg->SecurityCookie)
+        return false;
+    ULONGLONG cookie = *reinterpret_cast<const ULONGLONG*>(cfg->SecurityCookie);
+    return cookie != 0x00002B992DDFA232ull; // DEFAULT_SECURITY_COOKIE of the x64 CRT
+}
+
+// The core cannot start inside DllMain (loader lock); a thread starts it once DllMain has returned.
+static DWORD WINAPI start_late_thread(LPVOID)
+{
+    try {
+        load_core(false, 0);
+    } catch (...) {
+        log_line("loader: exception while loading core");
+    }
+    return 0;
+}
+
+static void start_late(const char* why)
+{
+    logf("loader: %s - starting without dearxan", why);
+    if (HANDLE t = CreateThread(nullptr, 0, start_late_thread, nullptr, 0, nullptr))
+        CloseHandle(t);
+    else
+        logf("loader: cannot start the core thread (error %lu) - running vanilla", GetLastError());
+}
+
 static DWORD g_deferred_thread;
 
-static void attach()
+// dynamic: loaded with LoadLibrary rather than as an import of the game (DllMain's lpReserved).
+static void attach(bool dynamic)
 {
     // Both variants (dinput8.dll and xinput1_3.dll) may be installed by mistake: only the
     // first one to load starts the mod, the other just forwards its exports.
@@ -346,7 +386,12 @@ static void attach()
 
     std::wstring log_path = g_mod_dir + L"\\DynamicKeyPrompts.log";
     g_log = _wfsopen(log_path.c_str(), L"w", _SH_DENYWR);
-    logf("loader: DynamicKeyPrompts loader attached as %s", g_proxy_name);
+    logf("loader: DynamicKeyPrompts loader attached as %s (%s)", g_proxy_name, dynamic ? "loaded by LoadLibrary" : "imported by the game");
+
+    if (game_started()) {
+        start_late("loaded after the game has started");
+        return;
+    }
 
     switch (detect_launch()) {
     case Launch::Seamless:
@@ -362,16 +407,20 @@ static void attach()
         start_without_dearxan();
         return;
     case Launch::Normal:
+        if (dynamic && !ini_int(L"Dearxan", 0)) {
+            start_late("loaded by another loader (e.g. an ASI loader)");
+            return;
+        }
         break;
     }
     start_mod();
 }
 
-BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID)
+BOOL WINAPI DllMain(HINSTANCE inst, DWORD reason, LPVOID reserved)
 {
     if (reason == DLL_PROCESS_ATTACH) {
         g_self = inst;
-        attach();
+        attach(reserved == nullptr);
         if (!g_deferred_thread)
             DisableThreadLibraryCalls(inst);
     } else if (reason == DLL_THREAD_DETACH && g_deferred_thread == GetCurrentThreadId()) {

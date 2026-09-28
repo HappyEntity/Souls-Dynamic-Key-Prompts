@@ -103,8 +103,11 @@ Works together with:
 
 The mod loads through dinput8.dll. If another mod already uses dinput8.dll,
 download the optional "xinput1_3 loader" file and use its xinput1_3.dll
-instead of dinput8.dll (see the readme inside it). With Ultimate ASI Loader
-you can also rename dinput8.dll to DynamicKeyPrompts.asi (not tested).
+instead of dinput8.dll (see the readme inside it).
+
+If both names are taken, load the mod with Ultimate ASI Loader (or another
+mod's DLL loader): rename the mod's dinput8.dll to DynamicKeyPrompts.asi and
+keep the DynamicKeyPrompts folder next to it.
 
 Made to work with every game language (tested with Russian).
 Key names follow the game (QWERTY, and the game's own German / French

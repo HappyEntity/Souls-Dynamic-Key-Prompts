@@ -24,6 +24,12 @@ First test version.
 
 ## Dark Souls II: Scholar of the First Sin
 
+### 1.0.2
+
+- The mod can be loaded by Ultimate ASI Loader or another mod's DLL loader (rename dinput8.dll to
+  DynamicKeyPrompts.asi), for setups where dinput8.dll and xinput1_3.dll are both taken. Loaded that
+  way it starts without its own Arxan workaround, like under Seamless Co-op.
+
 ### 1.0.1
 
 - Fixed the game closing right after start with Seamless Co-op on some systems (crash
