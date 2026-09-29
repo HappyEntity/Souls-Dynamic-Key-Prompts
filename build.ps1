@@ -26,7 +26,7 @@ $modName = "DynamicKeyPrompts"
 
 # Per game: core project (src\Games\<Dir>), release zip name, Steam folder, executable, game folder variable
 $games = [ordered]@{
-    ds2 = @{ Dir = "Ds2"; Zip = $modName; Steam = "Dark Souls II Scholar of the First Sin\Game"; Exe = "DarkSoulsII.exe"; Env = "DS2_GAME_DIR" }
+    ds2 = @{ Dir = "Ds2"; Zip = "$modName-DS2"; Steam = "Dark Souls II Scholar of the First Sin\Game"; Exe = "DarkSoulsII.exe"; Env = "DS2_GAME_DIR" }
     ds3 = @{ Dir = "Ds3"; Zip = "$modName-DS3"; Steam = "DARK SOULS III\Game"; Exe = "DarkSoulsIII.exe"; Env = "DS3_GAME_DIR" }
 }
 
@@ -96,7 +96,8 @@ if ($Package) {
         Copy-Item "$root\games\$key\$modName-README.txt" $dist
         Copy-Item "$root\LICENSE", "$root\THIRD-PARTY-NOTICES.md" "$dist\$modName\"
         $zips["$root\out\$($g.Zip)-$version.zip"] = "$dist\*"
-        if ($key -eq "ds2") { $zips["$root\out\$modName-$version-xinput1_3-loader.zip"] = "$distAlt\*" }
+        # The alternative loader is the same for every game; it carries the version of the DS2 release.
+        if ($key -eq "ds2") { $zips["$root\out\$modName-xinput1_3-loader-$version.zip"] = "$distAlt\*" }
     }
     Copy-Item "$root\games\$modName-xinput1_3-loader-README.txt" $distAlt
     foreach ($zip in $zips.Keys) {
