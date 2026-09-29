@@ -109,7 +109,7 @@ If both names are taken, load the mod with Ultimate ASI Loader (or another
 mod's DLL loader): rename the mod's dinput8.dll to DynamicKeyPrompts.asi and
 keep the DynamicKeyPrompts folder next to it.
 
-Made to work with every game language (tested with Russian).
+Made to work with every game language (tested with English and Russian).
 Key names follow the game (QWERTY, and the game's own German / French
 variants).
 
