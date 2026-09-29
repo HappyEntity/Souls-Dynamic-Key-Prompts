@@ -19,7 +19,9 @@ public sealed class Bhd5
     {
         _bdt = bdtPath;
         _ds3 = ds3;
-        _bhd = RsaDecrypt(File.ReadAllBytes(bhdPath), publicKeyPem);
+        byte[] raw = File.ReadAllBytes(bhdPath);
+        // Tools like BootBoost replace the headers with decrypted copies (the game reads those as they are).
+        _bhd = raw.AsSpan(0, 4).SequenceEqual("BHD5"u8) ? raw : RsaDecrypt(raw, publicKeyPem);
         if (Encoding.ASCII.GetString(_bhd, 0, 4) != "BHD5") throw new InvalidDataException("BHD5 header not decrypted");
         int bucketCount = BitConverter.ToInt32(_bhd, 0x10), buckets = BitConverter.ToInt32(_bhd, 0x14);
         int entrySize = ds3 ? 0x28 : 0x20;

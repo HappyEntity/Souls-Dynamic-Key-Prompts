@@ -82,6 +82,9 @@ loader, not DynamicKeyPrompts\DynamicKeyPrompts.dll.)
 If another ModEngine2 mod replaces menu\05_Dummy.tpf.dcx, the key icons are
 added to that mod's version of the file, so both work.
 
+A game unpacked with UXM or Nuxe works too: the key icons are then added to
+the unpacked Game\menu\05_Dummy.tpf.dcx. So does BootBoost.
+
 
 HOW IT WORKS
 ------------
@@ -91,6 +94,10 @@ the game instead of the original. Nothing in the game folder is changed.
 
 The mod loads through dinput8.dll. If another mod already uses dinput8.dll,
 use the optional "xinput1_3 loader" instead.
+
+If both names are taken, load the mod with Ultimate ASI Loader (or another
+mod's DLL loader): rename the mod's dinput8.dll to DynamicKeyPrompts.asi and
+keep the DynamicKeyPrompts folder next to it.
 
 
 PLAYING ONLINE

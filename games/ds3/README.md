@@ -41,6 +41,10 @@ Uninstall: delete `dinput8.dll` and the `DynamicKeyPrompts` folder.
 
 > If another mod already uses `dinput8.dll`, use the alternative loader `xinput1_3.dll`
 > (separate download, the same file as for Dark Souls II).
+>
+> If both names are taken, load the mod with [Ultimate ASI Loader](https://github.com/ThirteenAG/Ultimate-ASI-Loader)
+> (or another mod's DLL loader): rename the mod's `dinput8.dll` to `DynamicKeyPrompts.asi` and keep the
+> `DynamicKeyPrompts` folder next to it.
 
 ### With ModEngine2
 
@@ -58,6 +62,11 @@ The DLL may be renamed (e.g. `DynamicKeyPrompts-loader.dll`). List the loader, n
 
 If another ModEngine2 mod replaces `menu\05_Dummy.tpf.dcx`, the key icons are added to that mod's
 version of the file, so both work.
+
+### Unpacked game (UXM, Nuxe), BootBoost
+
+Works too: the key icons are added to the unpacked `Game\menu\05_Dummy.tpf.dcx`, so the game's
+archives are not needed. Archive headers decrypted by BootBoost are read as they are.
 
 ## Settings
 

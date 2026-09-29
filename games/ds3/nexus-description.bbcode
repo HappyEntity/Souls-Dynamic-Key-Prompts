@@ -50,9 +50,9 @@ Edit [b]DynamicKeyPrompts\DynamicKeyPrompts.ini[/b]:
 [*][b]Labels[/b] = auto / mouse / both[/*]
 [/list]
 [size=4][b]Compatibility[/b][/size]
-The mod loads through [b]dinput8.dll[/b]. If another mod already uses dinput8.dll, download the optional [b]xinput1_3 loader[/b] file and use its [b]xinput1_3.dll[/b] instead.
+The mod loads through [b]dinput8.dll[/b]. If another mod already uses dinput8.dll, download the optional [b]xinput1_3 loader[/b] file and use its [b]xinput1_3.dll[/b] instead. If both names are taken, load the mod with [b]Ultimate ASI Loader[/b] (or another mod's DLL loader): rename the mod's dinput8.dll to [b]DynamicKeyPrompts.asi[/b] and keep the DynamicKeyPrompts folder next to it.
 
-[b]ModEngine2:[/b] the mod can also stay outside the Game folder - put dinput8.dll and the DynamicKeyPrompts folder into any folder and list that dinput8.dll in [i]external_dlls[/i] of config_darksouls3.toml. If another ModEngine2 mod replaces menu\05_Dummy.tpf.dcx, the key icons are added to that mod's version of the file. Made to work with every game language (tested with English and Russian).
+[b]ModEngine2:[/b] the mod can also stay outside the Game folder - put dinput8.dll and the DynamicKeyPrompts folder into any folder and list that dinput8.dll in [i]external_dlls[/i] of config_darksouls3.toml. If another ModEngine2 mod replaces menu\05_Dummy.tpf.dcx, the key icons are added to that mod's version of the file. A game unpacked with UXM or Nuxe works too, and so does BootBoost. Made to work with every game language (tested with English and Russian).
 
 [size=4][b]Playing online[/b][/size]
 The mod only changes what you see: the prompt text and a copy of one menu texture file. It doesn't touch saves, params, items or stats and sends nothing over the network.

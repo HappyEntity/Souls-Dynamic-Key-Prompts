@@ -82,8 +82,11 @@ static unsafe class KeyIcons
             }
             lock (s_icons) foreach (var i in icons) s_icons[i.Id] = (i.Name, i.W, i.H);
 
-            // Another ModEngine2 mod may replace the carrier: the icons are then added to its version.
-            string? loose = ModEngine.FindModFile(Carrier);
+            // The game folder, not the mod's (the loader may live elsewhere, e.g. with ModEngine2)
+            string game = Path.GetDirectoryName(Environment.ProcessPath)!;
+            // Another ModEngine2 mod may replace the carrier, or the game may be unpacked (UXM, Nuxe: the
+            // archives are then often gone): the icons are added to that file instead of the archived one.
+            string? loose = ModEngine.FindModFile(Carrier) ?? UnpackedFile(game);
             string source = loose == null ? "data1" : $"{loose} {new FileInfo(loose).Length} {File.GetLastWriteTimeUtc(loose).Ticks}";
             string stamp = $"{StampVersion} {Config.IconTheme} {icons.Count} {source}";
             string stampFile = s_cacheFile + ".stamp";
@@ -93,14 +96,12 @@ static unsafe class KeyIcons
                 byte[] original;
                 if (loose != null)
                 {
-                    t_building = true; // our own read of the mod's file must not be redirected to the cache
+                    t_building = true; // our own read of the file must not be redirected to the cache
                     try { original = File.ReadAllBytes(loose); }
                     finally { t_building = false; }
                 }
                 else
                 {
-                    // The game folder, not the mod's (the loader may live elsewhere, e.g. with ModEngine2)
-                    string game = Path.GetDirectoryName(Environment.ProcessPath)!;
                     var archive = new Bhd5(Path.Combine(game, "Data1.bhd"), ArchiveKeys.Data1, Path.Combine(game, "Data1.bdt"), ds3: true);
                     original = archive.Read("/" + Carrier) ?? throw new FileNotFoundException(Carrier + " not in Data1");
                 }
@@ -115,6 +116,13 @@ static unsafe class KeyIcons
         }
         catch (Exception e) { s_failed = true; Loader.Log("icons: build failed, showing text: " + e); }
         finally { s_built.Set(); }
+    }
+
+    /// The carrier as a loose file of an unpacked game (Game\menu\05_Dummy.tpf.dcx), or null.
+    static string? UnpackedFile(string game)
+    {
+        string file = Path.Combine(game, Carrier.Replace('/', Path.DirectorySeparatorChar));
+        return File.Exists(file) ? file : null;
     }
 
     static RgbaImage Pad(RgbaImage img, int w, int h, int top)

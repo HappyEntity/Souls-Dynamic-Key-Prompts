@@ -2,6 +2,14 @@
 
 ## Dark Souls III
 
+### 0.1.3
+
+- Key icons now also work in a game unpacked with UXM or Nuxe (the icons are added to the unpacked
+  menu file) and with BootBoost, which replaces the archive headers with decrypted copies. Before, the
+  prompts showed text instead of icons there.
+- The mod can be loaded by Ultimate ASI Loader or another mod's DLL loader (rename dinput8.dll to
+  DynamicKeyPrompts.asi), for setups where dinput8.dll and xinput1_3.dll are both taken.
+
 ### 0.1.2
 
 - Key icons no longer push the prompt text down: help bar lines and pop-up menus with key icons now
