@@ -28,6 +28,20 @@ static unsafe class KeyConfig
     public static bool Russian { get; set; }
 
     /// The parts to show for an entry, following Labels= in the ini; null when nothing is bound.
+    /// All entries as "index: pad key (name) mod mouse", for comparing with the Key Bindings screen (diagnostics).
+    public static string Dump()
+    {
+        nint obj = *(nint*)(Loader.GameBase + Rva.KeyConfig);
+        if (obj == 0) return "keyconfig: not created";
+        var sb = new System.Text.StringBuilder("keyconfig:");
+        for (int i = 0; i < EntryCount; i++)
+        {
+            int* e = (int*)(obj + TableOffset + i * EntrySize);
+            sb.Append($"\n  {i,2}: pad {e[1],3} key {e[2],3} ({(e[2] > 0 ? KeyCodeNames.Key(e[2]) : "-")}) mod {e[3]} mouse {e[4]}");
+        }
+        return sb.ToString();
+    }
+
     public static Part[]? Parts(int entry)
     {
         if (entry is < 0 or >= EntryCount) return null;

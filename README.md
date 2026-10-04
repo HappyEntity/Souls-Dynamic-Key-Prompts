@@ -16,8 +16,8 @@ tutorial messages — and updates immediately when you rebind a key.
 
 | Game | Status | |
 |---|---|---|
-| Dark Souls II: Scholar of the First Sin | ✅ 1.0.2 | [Readme](games/ds2/README.md) · [Nexus Mods](https://www.nexusmods.com/darksouls2/mods/1738) |
-| Dark Souls III | 🧪 0.1.3, in testing | [Readme](games/ds3/README.md) · [Nexus Mods](https://www.nexusmods.com/darksouls3/mods/2379) |
+| Dark Souls II: Scholar of the First Sin | ✅ 1.0.3 | [Readme](games/ds2/README.md) · [Nexus Mods](https://www.nexusmods.com/darksouls2/mods/1738) |
+| Dark Souls III | 🧪 0.1.4, in testing | [Readme](games/ds3/README.md) · [Nexus Mods](https://www.nexusmods.com/darksouls3/mods/2379) |
 
 All releases: [GitHub Releases](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/releases) ·
 [Changelog](CHANGELOG.md) · [Report a problem](https://github.com/HappyEntity/Souls-Dynamic-Key-Prompts/issues)
@@ -65,5 +65,5 @@ pwsh .\build.ps1 -Package   # build and create the release zips in .\out
 Мод показывает в подсказках клавиши, которые **вы действительно назначили**, вместо кнопок геймпада,
 и сразу обновляет их после переназначения.
 
-- **Dark Souls II: SotFS** — готово (1.0.2), [подробности и установка](games/ds2/README.md).
-- **Dark Souls III** — в тестировании (0.1.3), [подробности](games/ds3/README.md).
+- **Dark Souls II: SotFS** — готово (1.0.3), [подробности и установка](games/ds2/README.md).
+- **Dark Souls III** — в тестировании (0.1.4), [подробности](games/ds3/README.md).

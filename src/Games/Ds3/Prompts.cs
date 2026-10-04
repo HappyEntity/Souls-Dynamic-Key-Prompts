@@ -86,7 +86,7 @@ static unsafe class Prompts
     /// icon is requested for something else (the Key Bindings screen shows the pad icons themselves).
     static int[]? ButtonEntries(int id)
     {
-        Span<nint> frames = stackalloc nint[16];
+        Span<nint> frames = stackalloc nint[32];
         int n = Native.CallStack(frames);
         long game = Loader.GameBase;
         for (int i = 0; i + 2 < n; i++)
@@ -98,11 +98,47 @@ static unsafe class Prompts
             byte* code = (byte*)(game + caller);
             int k = code[0] == 0x90 ? 1 : 0;
             if (code[k] == 0x41 && code[k + 1] == 0xB9 && *(int*)(code + k + 2) is var entry and >= 0 and < KeyConfig.EntryCount)
+            {
+                if (Config.Diagnostics) LogButton(id, frames, i, n, $"entry {entry} (passed by the caller)");
                 return [entry];
+            }
             bool menu = caller >= Rva.MenuTagsBegin && caller < Rva.MenuTagsEnd;
-            return (menu ? MenuButtons : WorldButtons).GetValueOrDefault(id);
+            if (menu)
+                for (int j = i + 3; j < n; j++)
+                {
+                    long ret = frames[j] - game;
+                    // The Key Bindings screen's Controller column keeps the gamepad icons
+                    if (ret is Rva.KeyBindingsPadIcon1 or Rva.KeyBindingsPadIcon2 or Rva.KeyBindingsPadIcon3)
+                    {
+                        if (Config.Diagnostics) LogButton(id, frames, i, n, "key bindings controller column, unchanged");
+                        return null;
+                    }
+                    // The action list at objects formats menu tags that mean game actions
+                    if (ret == Rva.ActionListPrompt) { menu = false; break; }
+                }
+            int[]? entries = (menu ? MenuButtons : WorldButtons).GetValueOrDefault(id);
+            if (Config.Diagnostics)
+                LogButton(id, frames, i, n, $"{(menu ? "menu" : "world")} table -> {(entries == null ? "none" : string.Join(",", entries))}");
+            return entries;
         }
         return null;
+    }
+
+    static bool s_keyConfigLogged;
+
+    /// Diagnostics=1: which code asked for a button icon and what it was resolved to (once per call site),
+    /// and the key config once, to compare with the Key Bindings screen.
+    static void LogButton(int id, Span<nint> frames, int i, int n, string result)
+    {
+        if (!s_keyConfigLogged)
+        {
+            s_keyConfigLogged = true;
+            Loader.Log(KeyConfig.Dump());
+        }
+        long game = Loader.GameBase;
+        var callers = new System.Text.StringBuilder();
+        for (int j = i + 1; j < n && j < i + 16; j++) callers.Append($" {frames[j] - game:X}");
+        Loader.LogOnce($"button {id}: callers{callers} -> {result}");
     }
 
     // ------------------------------------------------------------------ tutorial tags
@@ -131,6 +167,11 @@ static unsafe class Prompts
                 Part[][]? prompt = t == "<?kgCamera?>" ? [[KeyConfig.MouseMove()]]
                     : TutorialTags.TryGetValue(t, out var entries) ? Prompt(entries) : null;
                 if (prompt != null) markup = Labels.Markup(prompt);
+                if (Config.Diagnostics) // which tags the game replaces, and with what
+                {
+                    string m = markup == 0 ? "(null)" : new string((char*)markup);
+                    Loader.LogOnce($"tag {t} -> {(m.Length > 160 ? m[..160] + "..." : m)}");
+                }
             }
             catch (Exception e) { Loader.LogOnce("ReplaceTag: " + e.Message); }
         return s_replaceTag(source, output, tag, markup);

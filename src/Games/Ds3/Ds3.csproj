@@ -4,7 +4,7 @@
   <Import Project="..\..\Shared\Core.props" />
 
   <PropertyGroup>
-    <Version>0.1.3</Version>
+    <Version>0.1.4</Version>
     <Product>Dynamic Key Prompts for Dark Souls III</Product>
     <Description>Shows the keys you actually bound in Dark Souls III button prompts.</Description>
   </PropertyGroup>

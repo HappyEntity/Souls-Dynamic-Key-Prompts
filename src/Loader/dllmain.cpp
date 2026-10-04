@@ -395,6 +395,12 @@ static void attach(bool dynamic)
 
     switch (detect_launch()) {
     case Launch::Seamless:
+        // Loaded by another loader (an ASI loader imported by the game) after Seamless has loaded:
+        // there is no Seamless thread to wait for.
+        if (dynamic && seamless_loaded()) {
+            start_late("loaded by another loader under Seamless Co-op");
+            return;
+        }
         if (!ini_int(L"Defer", 1)) break;
         g_deferred_thread = GetCurrentThreadId();
         log_line("loader: started by Seamless Co-op - waiting for it to finish loading");

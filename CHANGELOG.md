@@ -2,6 +2,13 @@
 
 ## Dark Souls III
 
+### 0.1.4
+
+- "Switch action" (bonfire with an item next to it, and other objects with several actions) now shows
+  the two-hand key; it showed menu "Function 2" when the menu function keys were rebound.
+- The Key Bindings screen keeps the gamepad icons in its Controller column.
+- The mod starts when Ultimate ASI Loader loads it and the game was started by Seamless Co-op.
+
 ### 0.1.3
 
 - Key icons now also work in a game unpacked with UXM or Nuxe (the icons are added to the unpacked
@@ -31,6 +38,11 @@ First test version.
 - Compatible with Seamless Co-op and ModEngine2 (also as an `external_dlls` entry)
 
 ## Dark Souls II: Scholar of the First Sin
+
+### 1.0.3
+
+- The mod starts when Ultimate ASI Loader loads it and the game was started by Seamless Co-op (in 1.0.2
+  it did not start in that setup).
 
 ### 1.0.2
 

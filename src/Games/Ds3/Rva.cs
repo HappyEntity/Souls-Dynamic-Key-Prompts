@@ -20,6 +20,14 @@ static class Rva
     /// Registry of the menu tags (conclusion, cancel, ...): button functions called from here are menu buttons.
     public const int MenuTagsBegin = 0xAC1000, MenuTagsEnd = 0xAC3000;
 
+    /// Return address in the builder of the action list shown at objects ("Rest at bonfire" / "Switch action"):
+    /// the menu tags it formats mean game actions (Switch action = two-hand), not menu keys.
+    public const int ActionListPrompt = 0xA66233;
+
+    /// Return addresses in the Key Bindings screen that draw the Controller column's button icons
+    /// (first page, selected row, pages after switching tabs).
+    public const int KeyBindingsPadIcon1 = 0xA41A25, KeyBindingsPadIcon2 = 0xABA8AE, KeyBindingsPadIcon3 = 0xABDCA8;
+
     /// DLString replace, used by the virtual file system to turn "menu:/x" into "data1:/menu/x"
     /// (ModEngine2's virtual_to_archive_path for Dark Souls III).
     public const int PathReplace = 0x7D660;
