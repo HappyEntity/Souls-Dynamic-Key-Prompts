@@ -77,6 +77,11 @@ static class Bindings
     {
         var labels = inputs.Select(KeyLabel).ToArray();
         if (labels.Any(l => l == null)) return null;
+        // A d-pad on the four arrow keys as one icon: four separate ones make some help bars too
+        // long, and the game then drops everything after the first hint (Equipment item list).
+        if (UseIcons && labels is [var up, var left, var down, var right]
+            && up == Icon(190) && left == Icon(192) && down == Icon(195) && right == Icon(193))
+            return Icons.KeycapSet.ArrowsChar.ToString();
         bool compact = labels.All(l => l!.Length == 1);
         return string.Join(compact ? "" : Config.Separator, labels);
     }

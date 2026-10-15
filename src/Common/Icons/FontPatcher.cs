@@ -11,8 +11,8 @@ public static class FontPatcher
     public sealed record Result(byte[] FontBndDcx, int Glyphs, int Pages, string Log);
 
     /// Icons come from the sheet (scaled to the font's line height); icons missing from it are
-    /// rendered with the active theme.
-    public static Result Patch(byte[] fontBndDcx, IconSheet? sheet = null)
+    /// rendered with the active theme. hiddenGlyphs become empty and zero-width.
+    public static Result Patch(byte[] fontBndDcx, IconSheet? sheet = null, IReadOnlyCollection<int>? hiddenGlyphs = null)
     {
         var bnd = Bnd4.Read(Dcx.Decompress(fontBndDcx));
         var ccmEntry = bnd.Files.Single(f => f.Name.EndsWith(".ccm", StringComparison.OrdinalIgnoreCase));
@@ -66,6 +66,14 @@ public static class FontPatcher
             bnd.Files.Add(new Bnd4.Entry(nextId + i, texName + ".tpf", Tpf.WriteSingle(texName, dds)));
         }
         ccm.TextureCount = (byte)(firstNewTex + pages.Count);
+
+        // Invisible pad glyphs: help bars assembled from separate hints keep only hints that start with
+        // the hint's pad glyph, so replaced hints keep it in front of the key icon, drawn as nothing.
+        foreach (int code in hiddenGlyphs ?? [])
+        {
+            ccm.Glyphs.RemoveAll(g => g.Code == code);
+            ccm.Glyphs.Add(new Ccm.Glyph(code, new Ccm.Region(0, 0, 0, 0), 0, 0, 0, 0));
+        }
 
         int ccmIndex = bnd.Files.IndexOf(ccmEntry);
         bnd.Files[ccmIndex] = ccmEntry with { Data = ccm.Write() };

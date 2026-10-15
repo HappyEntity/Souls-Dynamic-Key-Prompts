@@ -39,6 +39,13 @@ First test version.
 
 ## Dark Souls II: Scholar of the First Sin
 
+### 1.0.4
+
+- Fixed help bars that lost every hint after the first one (Equipment item list: only "Select" was
+  left). The game keeps only hints that start with their pad glyph; it stays there now, drawn as nothing
+  by the patched font.
+- A d-pad on the four arrow keys is shown as one arrow-block icon instead of four keys.
+
 ### 1.0.3
 
 - The mod starts when Ultimate ASI Loader loads it and the game was started by Seamless Co-op (in 1.0.2

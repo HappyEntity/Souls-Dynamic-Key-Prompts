@@ -3,17 +3,19 @@ using DynamicKeyPrompts.Formats;
 namespace DynamicKeyPrompts.Icons;
 
 /// The glyphs added to the game font: one per bindable key code (the game's internal key codes), placed in
-/// the Private Use Area at U+E000 + key code, plus "move the mouse" at U+E0FE.
+/// the Private Use Area at U+E000 + key code, plus "move the mouse" at U+E0FE and the arrow block at U+E0FD.
 /// Name = file name (without .png) of a user icon that replaces the generated one.
 public static class KeycapSet
 {
     public const char Base = (char)0xE000;
     public const char MouseMoveChar = (char)0xE0FE;
+    /// The four arrow keys as one glyph (a d-pad bound to the arrows).
+    public const char ArrowsChar = (char)0xE0FD;
 
     public static char CharFor(int code) => (char)(Base + code);
 
     /// Bumped whenever the generated look or the set changes, so cached fonts are rebuilt.
-    public const int Version = 4;
+    public const int Version = 8;
 
     public readonly record struct Entry(int Code, string Name, KeycapSpec Spec);
 
@@ -27,6 +29,7 @@ public static class KeycapSet
         yield return new(11, "Mouse_Left_Double", new KeycapSpec.Mouse(MouseButton.Left, DoubleClick: true));
         yield return new(12, "Mouse_Right_Double", new KeycapSpec.Mouse(MouseButton.Right, DoubleClick: true));
         yield return new(MouseMoveChar - Base, "Mouse_Move", new KeycapSpec.MouseMove());
+        yield return new(ArrowsChar - Base, "Arrows", new KeycapSpec.Arrows());
 
         foreach (var (code, name, label) in Keys())
             yield return new(code, name, new KeycapSpec.Key(label));

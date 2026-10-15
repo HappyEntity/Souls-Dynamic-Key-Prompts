@@ -94,6 +94,12 @@ static unsafe class TextHook
 
             string original = new(text);
             string replaced = Replace(original, category, id);
+            // Help bars assembled from separate hints (Equipment item list: Common 10000..) keep only the
+            // hints that start with their pad glyph: keep it in front, the patched font draws it as nothing.
+            // (With Style=text the font is not patched and the pad icon stays visible there.)
+            if (category == (int)MsgCategory.Common && id is >= 10000 and < 10100
+                && replaced != original && original.Length > 0 && Glyphs.Get(original[0]) != null)
+                replaced = original[0] + replaced;
             nint result = (nint)text;
             if (replaced != original)
             {

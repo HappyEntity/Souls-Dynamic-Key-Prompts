@@ -64,6 +64,13 @@ static class Glyphs
         _ => null,
     };
 
+    /// Every pad glyph code of the font, made invisible in the patched font (see TextHook.Substitute).
+    public static readonly int[] All =
+    [
+        .. Enumerable.Range('①', '⑳' - '①' + 1), .. Enumerable.Range('㊤', '㊨' - '㊤' + 1),
+        '㌦', '㌧', '㎎', '㎏',
+    ];
+
     public static bool Any(ReadOnlySpan<char> s)
     {
         foreach (char c in s)

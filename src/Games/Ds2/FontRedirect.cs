@@ -88,7 +88,7 @@ static unsafe class FontRedirect
             {
                 var sw = System.Diagnostics.Stopwatch.StartNew();
                 KeycapRenderer.T = KeycapRenderer.ThemeByName(Config.IconTheme);
-                var result = FontPatcher.Patch(File.ReadAllBytes(full), IconSheets.Load(Config.IconTheme));
+                var result = FontPatcher.Patch(File.ReadAllBytes(full), IconSheets.Load(Config.IconTheme), Glyphs.All);
                 Directory.CreateDirectory(cacheDir);
                 File.WriteAllBytes(cached, result.FontBndDcx);
                 File.WriteAllText(stampFile, stamp);

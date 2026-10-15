@@ -13,6 +13,8 @@ public abstract record KeycapSpec
     public sealed record Mouse(MouseButton Button, int WheelDirection = 0, bool DoubleClick = false) : KeycapSpec;
     /// "Move the mouse" (camera on PC).
     public sealed record MouseMove : KeycapSpec;
+    /// The four arrow keys as one key (a d-pad bound to the arrows), to keep help bars short.
+    public sealed record Arrows : KeycapSpec;
 }
 
 public enum MouseButton { None, Left, Right, Middle }
@@ -59,6 +61,7 @@ public static unsafe class KeycapRenderer
             KeycapSpec.Key k => DrawKey(k.Label, plateH, lineHeight, margin),
             KeycapSpec.Mouse m => DrawMouse(m, plateH, lineHeight, margin),
             KeycapSpec.MouseMove => DrawMouseMove(plateH, lineHeight, margin),
+            KeycapSpec.Arrows => DrawArrows(plateH, lineHeight, margin),
             _ => throw new ArgumentException("spec"),
         };
         return c.Downsample();
@@ -88,6 +91,50 @@ public static unsafe class KeycapRenderer
         int tx = (int)((x0 + x1 - text.Width) / 2), ty = (int)((y0 + y1 - text.Height) / 2);
         PaintOutlinedText(cv, text, tx, ty, outline: plateH * SS * T.TextOutlineWidth);
         return cv;
+    }
+
+    /// The arrow key block as on a keyboard: one small key on top, three below, each with its arrow.
+    static Canvas DrawArrows(int plateH, int lineHeight, int margin)
+    {
+        float full = plateH * SS;
+        float gap = full * 0.04f, key = (full - gap) / 2;   // two rows of keys fill the plate height
+        int w = (int)(3 * key + 2 * gap) + 2 * margin * SS, h = lineHeight * SS;
+        w = (w + SS - 1) / SS * SS;
+        var cv = new Canvas(w, h);
+        float left = margin * SS, top = margin * SS;
+        float size = key * 0.2f, reach = key * 0.2f;        // half base and centre-to-tip of the arrows
+        float outline = full * T.TextOutlineWidth * 0.6f;
+        // (column, row, arrow direction)
+        foreach (var (col, row, dx, dy) in new[] { (1, 0, 0, -1), (0, 1, -1, 0), (1, 1, 0, 1), (2, 1, 1, 0) })
+        {
+            float x0 = left + col * (key + gap), y0 = top + row * (key + gap);
+            PaintPlate(cv, x0, y0, x0 + key, y0 + key, key * 0.22f);
+            // the triangle's centroid sits in the key's centre
+            float cx = x0 + key / 2 - dx * reach * 0.3f, cy = y0 + key / 2 - dy * reach * 0.3f;
+            PaintTriangle(cv, cx, cy, dx, dy, reach, size, outline);
+        }
+        return cv;
+    }
+
+    // Triangle with its tip at (cx, cy) + dir * reach and its base 2 * size wide, in the text colours.
+    static void PaintTriangle(Canvas cv, float cx, float cy, int dx, int dy, float reach, float size, float outline)
+    {
+        float baseAt = reach - size * 1.15f;
+        for (int pass = 0; pass < 2; pass++)
+        {
+            float grow = pass == 0 ? Math.Max(1, outline) : 0;
+            var col = pass == 0 ? T.TextOutline : T.TextFill;
+            for (int y = 0; y < cv.H; y++)
+                for (int x = 0; x < cv.W; x++)
+                {
+                    float px = x + 0.5f - cx, py = y + 0.5f - cy;
+                    float along = px * dx + py * dy, across = Math.Abs(px * dy - py * dx);
+                    if (along < baseAt - grow || along > reach + grow) continue;
+                    float half = (reach - along) / (reach - baseAt) * size;
+                    if (across > half + grow) continue;
+                    cv.Blend(x, y, col, 1);
+                }
+        }
     }
 
     static void PaintPlate(Canvas cv, float x0, float y0, float x1, float y1, float radius)
